@@ -1,2 +1,4 @@
 # ostrichdb.com
-The official website for the NoJSON/NoSQL database management system!
+The official repository for the OstrichDB Web Application
+
+
