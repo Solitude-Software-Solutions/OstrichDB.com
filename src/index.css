@@ -1,0 +1,102 @@
+/**
+* =================================================
+* #Author: Kasi Reeves
+* GitHub: @Kasirocswell  
+* #Contributors: 
+*           @SchoolyB
+* 
+* License: Apache License 2.0 (see LICENSE file for details)
+* Copyright (c) 2025-Present Archetype Dynamics, Inc.
+* #File Description:
+*    Contains global CSS styles, theme variables, and utility classes.
+* =================================================
+**/
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-primary: #121820;
+  --bg-secondary: #1E2A38;
+  --text-primary: #EAE3D1; /* Changed to cream for dark mode */
+  --text-secondary: #EAE3D1; /* Changed to cream for dark mode */
+  --border-color: #2D3748;
+  --logo-primary: #EAE3D1;  /* Cream color for "Ostrich" in dark mode */
+  --logo-secondary: #E08A2C; /* Amber color for "DB" in dark mode - unchanged */
+}
+
+[data-theme='light'] {
+  --bg-primary: #F5F1E8;  /* Cream/off-white background color */
+  --bg-secondary: #EAE3D1; /* Slightly darker cream for secondary backgrounds */
+  --text-primary: #121820; /* Dark blue text for light mode */
+  --text-secondary: #121820; /* Dark blue text for light mode */
+  --border-color: #D6CFC2; /* Cream-toned border color */
+  --logo-primary: #121820;  /* Dark blue color for "Ostrich" in light mode */
+  --logo-secondary: #E08A2C; /* Amber color for "DB" in light mode - unchanged */
+}
+
+body {
+  @apply antialiased;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-feature-settings: "ss01", "ss02", "cv01", "cv02";
+}
+
+@layer components {
+  .container {
+    @apply px-4 md:px-6 mx-auto max-w-7xl;
+  }
+  
+  .btn {
+    @apply px-4 py-2 rounded-md font-medium transition-all duration-200 inline-flex items-center justify-center;
+  }
+  
+  .btn-primary {
+    @apply bg-sb-amber hover:bg-sb-amber-dark text-white;
+  }
+  
+  .btn-secondary {
+    @apply bg-sb-dark-accent hover:bg-gray-700 text-white;
+  }
+  
+  .btn-outline {
+    @apply border border-gray-700 hover:bg-sb-dark-accent text-white;
+    border-color: var(--border-color);
+  }
+  
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-sb-dark to-sb-amber;
+  }
+  
+  .code-block {
+    @apply rounded-lg p-4 font-mono text-sm overflow-auto;
+    background-color: var(--bg-secondary);
+  }
+  
+  /* Logo styling based on theme */
+  .logo-text-primary {
+    color: var(--logo-primary);
+  }
+  
+  .logo-text-secondary {
+    color: var(--logo-secondary);
+  }
+}
+
+/* Custom gradients */
+.hero-gradient {
+  background: radial-gradient(circle at 50% -20%, rgba(234, 227, 209, 0.15), transparent 70%);
+}
+
+.bg-grid {
+  background-image: 
+    linear-gradient(to right, var(--border-color) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--border-color) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* Theme transition */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
