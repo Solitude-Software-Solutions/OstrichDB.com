@@ -111,7 +111,7 @@ const Navbar: React.FC = () => {
           <div className="hidden md:flex items-center space-x-4">
             <ThemeToggle />
             <a
-              href="https://github.com/Archetype-Dynamics/OstrichDB.com"
+              href="https://github.com/Archetype-Dynamics/OstrichDB.com" target="_blank"
               className="text-sb-cream hover:text-white transition-colors"
             >
               <Github size={20} />
