@@ -32,13 +32,13 @@ const CTA: React.FC = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <a href="#" className="btn btn-primary py-3 px-8 text-base">
+            {/* <a href="#" className="btn btn-primary py-3 px-8 text-base">
               Start your project
             </a>
             <a href="#" className="btn btn-outline py-3 px-8 text-base group">
               <span>Documentation</span>
               <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform" />
-            </a>
+            </a> */}
           </div>
         </div>
       </div>

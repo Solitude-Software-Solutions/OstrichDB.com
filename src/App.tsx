@@ -21,6 +21,7 @@ import Testimonials from './components/home/Testimonials';
 import Pricing from './components/home/Pricing';
 import CTA from './components/home/CTA';
 import CompanyStats from './components/home/CompanyStats';
+import GetStarted from './components/home/GetStarted';
 import { ThemeProvider } from './context/ThemeContext';
 
 function App() {
@@ -56,7 +57,9 @@ function App() {
           <Testimonials />
           <Pricing />
           <CTA />
+          <GetStarted />
         </main>
+        
         <Footer />
       </div>
     </ThemeProvider>
