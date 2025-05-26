@@ -57,10 +57,7 @@ function App() {
       >
         <Navbar />
         <main className="flex-1">
-          <Hero />
-          <CompanyStats />
-          <Testimonials />
-          <Pricing />
+          <Hero />         
           <CTA />
           <GetStarted />
         </main>
