@@ -28,5 +28,5 @@ export const products: Product[] = [
     description:
       "User management with multiple auth methods like OAuth, magic links, and phone auth.",
     icon: "KeyRound",
-  }
+  },
 ];
