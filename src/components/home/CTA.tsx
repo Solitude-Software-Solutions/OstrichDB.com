@@ -18,7 +18,7 @@ import Features from "./Features";
 
 const CTA: React.FC = () => {
   return (
-    <section className="py-24 bg-sb-dark relative overflow-hidden">
+    <section className="py-24  relative overflow-hidden ">
       <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-sb-amber/50 to-transparent"></div>
       <div className="absolute -top-40 -left-40 w-80 h-80 bg-sb-cream/10 rounded-full blur-3xl"></div>
       <div className="absolute -bottom-40 -right-40 w-80 h-80 bg-sb-amber/10 rounded-full blur-3xl"></div>

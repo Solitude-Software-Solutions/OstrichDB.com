@@ -4,7 +4,7 @@
  * GitHub: @Kasirocswell
  * #Contributors:
  *           @SchoolyB
- *           @GaleSSalazar 
+ *           @GaleSSalazar
  *
  * License: Apache License 2.0 (see LICENSE file for details)
  * Copyright (c) 2025-Present Archetype Dynamics, Inc.
@@ -32,8 +32,8 @@ const Features: React.FC = () => {
             className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 leading-tight"
             style={{ color: "var(--text-primary)" }}
           >
-            Start building with <span className="gradient-text">OstrichDB</span>{" "}
-            today
+            Start building with <span className="gradient-text">Ostrich</span>
+            <span>DB</span> today
           </h2>
 
           <p className="text-lg" style={{ color: "var(--text-secondary)" }}>
