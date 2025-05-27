@@ -24,17 +24,11 @@ const CTA: React.FC = () => {
 
       <div className="container relative">
         <div className="max-w-3xl mx-auto text-center">
-          <h2
-            className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 leading-tight"
-            style={{ color: "var(--text-primary)" }}
-          >
-            Start building with <span className="gradient-text">OstrichDB</span>{" "}
-            today
-          </h2>
-          <p className="text-xl mb-10" style={{ color: "var(--text-primary)" }}>
+         
+          {/* <p className="text-xl mb-10" style={{ color: "var(--text-primary)" }}>
             Join thousands of developers and teams using OstrichDB to build
             their applications faster and more securely.
-          </p>
+          </p> */}
 
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <Features />

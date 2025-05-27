@@ -27,16 +27,24 @@ const Features: React.FC = () => {
     <section className="py-20" style={{ backgroundColor: "var(--bg-primary)" }}>
       <div className="container">
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6 gradient-text">
-            Everything you need to build modern applications
+          
+          <h2
+            className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 leading-tight"
+            style={{ color: "var(--text-primary)" }}
+          >
+            Start building with <span className="gradient-text">OstrichDB</span>{" "}
+            today
           </h2>
+          {/* <h2 className="text-3xl md:text-4xl font-bold mb-6 gradient-text">
+            Everything you need to build modern applications
+          </h2> */}
           <p className="text-lg" style={{ color: "var(--text-secondary)" }}>
-            The complete platform for building and scaling your product. All the
-            tools you need, fully integrated with PostgreSQL.
+            A complete platform for builidng and scaling your product. All the
+            tools you need, fully integreated with PostgreSQL.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid sm:grid-cols-2 gap-8">
           {products.map((product) => {
             const Icon = Icons[product.icon] || Icons.Box;
 
@@ -76,11 +84,11 @@ const Features: React.FC = () => {
           })}
         </div>
 
-        <div className="mt-16 text-center">
+        {/* <div className="mt-16 text-center">
           <a href="#" className="btn btn-outline py-3 px-8 text-base">
             View all features
           </a>
-        </div>
+        </div> */}
       </div>
     </section>
   );
