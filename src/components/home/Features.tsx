@@ -4,6 +4,7 @@
  * GitHub: @Kasirocswell
  * #Contributors:
  *           @SchoolyB
+ *           @GaleSSalazar 
  *
  * License: Apache License 2.0 (see LICENSE file for details)
  * Copyright (c) 2025-Present Archetype Dynamics, Inc.
@@ -36,8 +37,7 @@ const Features: React.FC = () => {
           </h2>
 
           <p className="text-lg" style={{ color: "var(--text-secondary)" }}>
-            A complete platform for builidng and scaling your product. All the
-            tools you need, fully integreated with PostgreSQL.
+            A complete backend solution for building and scaling your product.
           </p>
         </div>
 
