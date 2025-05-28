@@ -14,64 +14,74 @@
  **/
 
 import React from "react";
-import { Github, Twitter, Linkedin, Youtube } from "lucide-react";
+import { Github, Youtube } from "lucide-react";
 
 const Footer: React.FC = () => {
   return (
     <footer
-      className="border-t flex items-center justify-center min-h-32 "
+      className="border-t flex items-center justify-center min-h-32"
       style={{
         backgroundColor: "var(--bg-primary)",
         borderColor: "var(--border-color)",
       }}
     >
-      <div className="w-full" style={{ borderColor: "var(--border-color)" }}>
-        <div className=" flex flex-col md:flex-row md:justify-around items-center  flex-wrap gap-4 pt-6 ">
-          <a
-            href="#"
-            style={{ color: "var(--text-secondary)" }}
-            className="hover:text-white text-sm transition-colors"
-          >
-            Documentation
-          </a>
+      <div className="w-full max-w-6xl px-4">
+        {/* Main footer content */}
+        <div className="flex flex-col md:flex-row justify-between items-center py-6 gap-4">
+          {/* Left side - Documentation */}
+          <div className="flex items-center">
+            <a
+              href="#"
+              style={{ color: "var(--text-secondary)" }}
+              className="hover:text-white text-sm transition-colors"
+            >
+              Documentation
+            </a>
+          </div>
 
-          <a
-            href="#"
-            style={{ color: "var(--text-secondary)" }}
-            className="hover:text-white text-sm transition-colors"
-          >
-            <Youtube></Youtube>
-          </a>
+          {/* Center - Copyright */}
+          <div className="flex-1 flex justify-center">
+            <p
+              style={{ color: "var(--text-secondary)" }}
+              className="text-sm text-center"
+            >
+              © {new Date().getFullYear()} Archetype Dynamics, Inc. All rights reserved.
+            </p>
+          </div>
 
-          <a
-            href="https://github.com/Archetype-Dynamics/OstrichDB.com"
-            target="_blank"
-            style={{ color: "var(--text-secondary)" }}
-            className="hover:text-white text-sm transition-colors"
-          >
-            <Github></Github>
-          </a>
-          <p
-            style={{ color: "var(--text-secondary)" }}
-            className="text-sm mb-4 md:mb-0"
-          >
-            © {new Date().getFullYear()} Archetype Dynamcics, Inc. All rights
-            reserved.
-          </p>
-          <a
-            href="#"
-            style={{ color: "var(--text-secondary)" }}
-            className="hover:text-white text-sm transition-colors"
-          >
-            DPA
-          </a>
-          <a
-            href="#"
-            style={{ color: "var(--text-secondary)" }}
-            className="hover:text-white text-sm transition-colors"
-          >
-            SLA
-          </a>
+          {/* Right side - Social icons and links */}
+          <div className="flex items-center gap-4">
+            <a
+              href="#"
+              style={{ color: "var(--text-secondary)" }}
+              className="hover:text-white transition-colors"
+            >
+              <Youtube size={18} />
+            </a>
+            <a
+              href="https://github.com/Archetype-Dynamics/OstrichDB.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: "var(--text-secondary)" }}
+              className="hover:text-white transition-colors"
+            >
+              <Github size={18} />
+            </a>
+            <a
+              href="#"
+              style={{ color: "var(--text-secondary)" }}
+              className="hover:text-white text-sm transition-colors"
+            >
+              DPA
+            </a>
+            <a
+              href="#"
+              style={{ color: "var(--text-secondary)" }}
+              className="hover:text-white text-sm transition-colors"
+            >
+              SLA
+            </a>
+          </div>
         </div>
       </div>
     </footer>
