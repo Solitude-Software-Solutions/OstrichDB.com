@@ -1,18 +1,21 @@
 {
-  "name": "vite-react-typescript-starter",
+  "name": "ostrichdb_webapp",
   "private": true,
-  "version": "0.0.0",
+  "version": "Rel_v1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "lint": "eslint .",
+    "lint": "eslint . --max-warnings 0",
+    "lint:fix": "eslint . --fix",
+    "type-check": "tsc --noEmit",
     "preview": "vite preview"
   },
   "dependencies": {
     "lucide-react": "^0.344.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "type-check": "^0.4.0",
     "yarn": "^1.22.22"
   },
   "devDependencies": {
