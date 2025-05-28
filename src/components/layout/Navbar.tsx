@@ -72,17 +72,18 @@ const Navbar: React.FC = () => {
     <nav
       className={`fixed w-full z-50 transition-all duration-300 ${
         isScrolled
-          ? "bg-sb-dark/90 backdrop-blur-sm shadow-lg"
-          : "bg-transparent"
-      }`}
+          ? " bg-sb-dark shadow-lg text-sb-cream dark:text-sb-light"
+          : " bg-sb-dark text-sb-cream dark:text-sb-light"
+      }
+     `}
     >
       <div className="container py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
           <a href="#" className="flex items-center space-x-2">
             <span className="font-bold text-xl">
-              <span className="logo-text-primary">Ostrich</span>
-              <span className="logo-text-secondary">DB</span>
+              <span className="text-[var(--logo-text-primary)]">Ostrich</span>
+              <span className="text-[var(--logo-secondary)]">DB</span>
             </span>
           </a>
 
@@ -99,7 +100,7 @@ const Navbar: React.FC = () => {
                 // hides active dropdown as soon as mouse leaves dropdown
                 onMouseLeave={() => setActiveDropdown(null)}
               >
-                <button className="flex items-center space-x-1 text-gray-300 hover:text-white transition-colors">
+                <button className="flex items-center space-x-1 text-white transition-colors">
                   <span>{link.label}</span>
                   {link.isDropdown && <ChevronDown size={16} />}
                 </button>
@@ -112,11 +113,13 @@ const Navbar: React.FC = () => {
           <div className="hidden md:flex items-center space-x-4">
             <ThemeToggle />
             <a
-              href="https://github.com/Archetype-Dynamics/OstrichDB.com" target="_blank"
-              className="text-sb-cream hover:text-white transition-colors"
+              href="https://github.com/Archetype-Dynamics/OstrichDB.com"
+              target="_blank"
+              className="text-sb-gray hover:text-white transition-colors"
             >
               <Github size={20} />
             </a>
+
             <a href="#" className="btn btn-outline text-sm">
               Sign In
             </a>
@@ -184,15 +187,6 @@ const Navbar: React.FC = () => {
               )}
             </div>
           ))}
-
-          <div className="pt-4 border-t border-gray-700 flex flex-col space-y-3">
-            <a href="#" className="btn btn-outline text-center">
-              Sign In
-            </a>
-            <a href="#" className="btn btn-primary text-center">
-              Start Free
-            </a>
-          </div>
         </div>
       </div>
     </nav>

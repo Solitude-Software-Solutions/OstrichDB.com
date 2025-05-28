@@ -3,7 +3,7 @@
  * #Author: Gale Salazar
  * GitHub: @GaleSSalazar
  * #Contributors:
- *          
+ *
  *
  * License: Apache License 2.0 (see LICENSE file for details)
  * Copyright (c) 2025-Present Archetype Dynamics, Inc.
@@ -15,7 +15,6 @@
 import { ArrowRight } from "lucide-react";
 
 const GetStarted: React.FC = () => {
-
   return (
     <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8">
       <a href="#" className="btn btn-primary py-3 px-6 text-base">

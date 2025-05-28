@@ -4,7 +4,7 @@
  * GitHub: @Kasirocswell
  * #Contributors:
  *           @SchoolyB
- *           @GaleSSalazar  
+ *           @GaleSSalazar
  *
  * License: Apache License 2.0 (see LICENSE file for details)
  * Copyright (c) 2025-Present Archetype Dynamics, Inc.
