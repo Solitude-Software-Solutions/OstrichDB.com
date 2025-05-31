@@ -14,12 +14,21 @@
  **/
 
 import React, { useEffect, useState } from "react";
+import { KindeProvider } from "@kinde-oss/kinde-auth-react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
 import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
 import Hero from "./components/home/Hero";
 import CTA from "./components/home/CTA";
 import GetStarted from "./components/home/GetStarted";
 import { ThemeProvider } from "./context/ThemeContext";
+
+// Kinde authentication .env variables
+const clientId = import.meta.env.VITE_KINDE_CLIENT_ID;
+const domain = import.meta.env.VITE_KINDE_DOMAIN;
+const logoutUri = import.meta.env.VITE_KINDE_LOGOUT_URL;
+const redirectUri = import.meta.env.VITE_KINDE_REDIRECT_URL;
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -47,20 +56,38 @@ function App() {
   }
 
   return (
-    <ThemeProvider>
-      <div
-        className="min-h-screen flex flex-col"
-        style={{ backgroundColor: "var(--bg-primary)" }}
-      >
-        <Navbar />
-        <main className="flex-1">
-          <Hero />
-          <CTA />
-          <GetStarted />
-        </main>
-        <Footer />
-      </div>
-    </ThemeProvider>
+    <KindeProvider
+      clientId={clientId}
+      domain={domain}
+      redirectUri={redirectUri}
+      logoutUri={logoutUri}
+    >
+      <ThemeProvider>
+        <Router>
+          <div
+            className="min-h-screen flex flex-col"
+            style={{ backgroundColor: "var(--bg-primary)" }}
+          >
+            <Navbar />
+            <main className="flex-1">
+              <Routes>
+                <Route
+                  path="/"
+                  element={
+                    <>
+                      <Hero />
+                      <CTA />
+                      <GetStarted />
+                    </>
+                  }
+                />
+              </Routes>
+            </main>
+            <Footer />
+          </div>
+        </Router>
+      </ThemeProvider>
+    </KindeProvider>
   );
 }
 
