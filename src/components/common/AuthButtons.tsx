@@ -12,25 +12,37 @@
  * =================================================
  **/
 
-import React, { useState, useEffect } from "react";
 import {
   LoginLink,
   RegisterLink,
+  LogoutLink,
 } from "@kinde-oss/kinde-auth-react/components";
-// import { LogoutLink } from "@kinde-oss/kinde-auth-react/components";
+import { useKindeAuth } from "@kinde-oss/kinde-auth-react";
+import UserProfile from "./UserProfile";
 
-const AuthButtons = () => {
+const AuthButtons = ({ showAvatar = true }) => {
+  const { isAuthenticated } = useKindeAuth();
+
   return (
     <>
-      {/* AUTH kinde hosted login component */}
-      <LoginLink className="btn btn-outline text-sm" type="button">
-        Sign In
-      </LoginLink>
-      {/* AUTH kinde hosted register component */}
-      <RegisterLink className="btn btn-primary text-sm" type="button">
-        Start Free
-      </RegisterLink>
-      {/* <LogoutLink>Logout</LogoutLink> */}
+      {isAuthenticated ? (
+        <>
+          <LogoutLink className="btn btn-outline text-sm">Logout</LogoutLink>
+          {showAvatar && <UserProfile />}
+        </>
+      ) : (
+        <>
+          {/* AUTH kinde hosted login component */}
+          <LoginLink className="btn btn-outline text-sm" type="button">
+            Sign In
+          </LoginLink>
+
+          {/* AUTH kinde hosted register component */}
+          <RegisterLink className="btn btn-primary text-sm" type="button">
+            Start Free
+          </RegisterLink>
+        </>
+      )}
     </>
   );
 };

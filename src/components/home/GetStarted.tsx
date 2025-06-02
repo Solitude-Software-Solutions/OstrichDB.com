@@ -12,12 +12,14 @@
  * =================================================
  **/
 
+// import { useKindeAuth } from "@kinde-oss/kinde-auth-react";
 import AuthButtons from "../common/AuthButtons";
+// import UserProfile from "../common/UserProfile";
 
 const GetStarted: React.FC = () => {
   return (
     <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8">
-      <AuthButtons />
+      <AuthButtons showAvatar={false} />
     </div>
   );
 };
