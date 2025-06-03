@@ -22,23 +22,23 @@ const Hero: React.FC = () => {
         <div className="max-w-3xl mx-auto text-center mb-12">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
             <span style={{ color: "var(--text-primary)" }} className="block">
-              Your All In One
+              The Database That
             </span>
-            <span className="text-sb-amber block">Backend Solution</span>
+            <span className="text-sb-amber block">Gets You</span>
           </h1>
           <p
             style={{ color: "var(--text-primary)" }}
             className="text-xl md:text-2xl mb-8 leading-relaxed"
           >
-            Build in a weekend. Scale to millions. OstrichDB is an open source
-            MongoDB alternative for building production-grade applications.
+            Hierarchical organization. Strong typing. Built-in security. 
+            Finally, a database that works the way developers think.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <a href="#" className="btn btn-primary py-3 px-6 text-base">
-              Start your project
+              Start Building Free
             </a>
             <a href="#" className="btn btn-outline py-3 px-6 text-base group">
-              <span>Documentation</span>
+              <span>View Docs</span>
               <ArrowRight
                 size={16}
                 className="ml-2 group-hover:translate-x-1 transition-transform"
