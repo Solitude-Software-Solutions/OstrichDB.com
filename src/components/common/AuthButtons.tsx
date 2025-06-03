@@ -20,7 +20,7 @@ import {
 import { useKindeAuth } from "@kinde-oss/kinde-auth-react";
 import UserProfile from "./UserProfile";
 
-const AuthButtons = ({ showAvatar = true }) => {
+const AuthButtons = ({ showAvatar = true, showButton = true }) => {
   const { isAuthenticated } = useKindeAuth();
 
   return (
@@ -28,7 +28,7 @@ const AuthButtons = ({ showAvatar = true }) => {
       {isAuthenticated ? (
         <>
           <LogoutLink className="btn btn-outline text-sm">Logout</LogoutLink>
-          {showAvatar && <UserProfile />}
+          {showAvatar && showButton && <UserProfile />}
         </>
       ) : (
         <>

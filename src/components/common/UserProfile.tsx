@@ -22,14 +22,34 @@ const UserProfile = () => {
     return null;
   }
 
+  const initials = () => {
+    if (user.email) {
+      return user.email.slice(0, 2).toUpperCase();
+    }
+
+    const firstNameInitial = user.givenName
+      ? user.givenName.charAt(0).toUpperCase()
+      : "";
+    const lastNameInitial = user.familyName
+      ? user.familyName.charAt(0).toUpperCase()
+      : "";
+    return firstNameInitial + lastNameInitial || "NA";
+  };
+
   return (
-    <div>
-      <img
-        src={user.picture}
-        alt="User profile"
-        className="h-8 w-8 rounded-full object-cover"
-      />
-    </div>
+    <>
+      {user.picture ? (
+        <img
+          src={user.picture}
+          alt="User profile"
+          className="h-8 w-8 rounded-full object-cover"
+        />
+      ) : (
+        <div className="h-8 w-8 rounded-full bg-gray-200 text-sb-amber outline flex items-center justify-center">
+          {initials()}
+        </div>
+      )}
+    </>
   );
 };
 
