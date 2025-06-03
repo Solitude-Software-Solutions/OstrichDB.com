@@ -12,21 +12,19 @@
  * =================================================
  **/
 
-import { ArrowRight } from "lucide-react";
+// buttons above the footer
 
-const GetStarted: React.FC = () => {
+import { useKindeAuth } from "@kinde-oss/kinde-auth-react";
+import AuthButtons from "../common/AuthButtons";
+
+const GetStarted = () => {
+  const { isAuthenticated } = useKindeAuth();
+  if (isAuthenticated) return null;
+
   return (
     <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8">
-      <a href="#" className="btn btn-primary py-3 px-6 text-base">
-        Register
-      </a>
-      <a href="#" className="btn btn-outline py-3 px-6 text-base group">
-        <span>Sign In</span>
-        <ArrowRight
-          size={16}
-          className="ml-2 group-hover:translate-x-1 transition-transform"
-        />
-      </a>
+      {/* removes the auth buttons from above the footer while logged in */}
+      <AuthButtons showAvatar={false} />
     </div>
   );
 };

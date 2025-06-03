@@ -15,10 +15,7 @@
 
 import React, { useState, useEffect } from "react";
 import { ChevronDown, Menu, X, Github, ExternalLink } from "lucide-react";
-import {
-  LoginLink,
-  RegisterLink,
-} from "@kinde-oss/kinde-auth-react/components";
+import AuthButtons from "../common/AuthButtons";
 import { navLinks } from "../../data/navLinks";
 import { NavLink } from "../../types";
 import ThemeToggle from "../common/ThemeToggle";
@@ -124,14 +121,7 @@ const Navbar: React.FC = () => {
             >
               <Github size={20} />
             </a>
-            {/* AUTH kinde hosted login component */}
-            <LoginLink className="btn btn-outline text-sm" type="button">
-              Sign In
-            </LoginLink>
-            {/* AUTH kinde hosted register component */}
-            <RegisterLink className="btn btn-primary text-sm" type="button">
-              Start Free
-            </RegisterLink>
+            <AuthButtons />
           </div>
 
           {/* Mobile Menu Button */}
