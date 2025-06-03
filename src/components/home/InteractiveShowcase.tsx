@@ -91,33 +91,44 @@ GET .../records?minValue=1000&maxValue=3000`,
   const NLQEditor = () => (
     <div className="space-y-4">
       <div className="text-center mb-6">
-        <h3 className="text-xl font-bold text-gray-100 mb-2">Natural Language Queries</h3>
-        <p className="text-gray-400 text-sm">Ask questions in plain English</p>
+        <h3 className="text-xl font-bold mb-2" style={{ color: "var(--text-primary)" }}>Natural Language Queries</h3>
+        <p className="text-sm" style={{ color: "var(--text-secondary)" }}>Ask questions in plain English</p>
       </div>
       
-      <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-600">
+      <div className="rounded-lg p-4 border" style={{ 
+        backgroundColor: "var(--bg-secondary)", 
+        borderColor: "var(--border-color)" 
+      }}>
         <div className="mb-4">
-          <label className="text-xs text-gray-400 uppercase tracking-wide">Try asking:</label>
+          <label className="text-xs uppercase tracking-wide" style={{ color: "var(--text-secondary)" }}>Try asking:</label>
         </div>
         <textarea
           placeholder="Show me all users who signed up in the last 30 days and have made at least one purchase..."
-          className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-gray-200 placeholder-gray-500 h-24 resize-none"
+          className="w-full rounded-lg px-4 py-3 h-24 resize-none border"
+          style={{ 
+            backgroundColor: "var(--bg-primary)", 
+            borderColor: "var(--border-color)",
+            color: "var(--text-primary)"
+          }}
         />
-        <button className="mt-3 bg-amber-600 hover:bg-amber-700 text-white rounded px-4 py-2 text-sm font-medium transition-colors">
+        <button className="mt-3 bg-sb-amber hover:bg-sb-amber-dark text-white rounded px-4 py-2 text-sm font-medium transition-colors">
           Execute Query
         </button>
       </div>
       
-      <div className="bg-gray-800/30 rounded-lg p-4 border border-gray-600 border-dashed">
-        <div className="text-xs text-gray-400 mb-2">Example queries:</div>
+      <div className="rounded-lg p-4 border border-dashed" style={{ 
+        backgroundColor: "var(--bg-secondary)", 
+        borderColor: "var(--border-color)" 
+      }}>
+        <div className="text-xs mb-2" style={{ color: "var(--text-secondary)" }}>Example queries:</div>
         <div className="space-y-2">
-          <div className="text-sm text-gray-300 cursor-pointer hover:text-amber-300 transition-colors">
+          <div className="text-sm cursor-pointer hover:text-sb-amber transition-colors" style={{ color: "var(--text-primary)" }}>
             • "Find all orders over $100 from this month"
           </div>
-          <div className="text-sm text-gray-300 cursor-pointer hover:text-amber-300 transition-colors">
+          <div className="text-sm cursor-pointer hover:text-sb-amber transition-colors" style={{ color: "var(--text-primary)" }}>
             • "Show me users who haven't logged in for 90 days"
           </div>
-          <div className="text-sm text-gray-300 cursor-pointer hover:text-amber-300 transition-colors">
+          <div className="text-sm cursor-pointer hover:text-sb-amber transition-colors" style={{ color: "var(--text-primary)" }}>
             • "Delete all test data from the staging cluster"
           </div>
         </div>
@@ -140,27 +151,30 @@ GET .../records?minValue=1000&maxValue=3000`,
   };
 
   return (
-    <section className="py-20 bg-gray-900">
+    <section className="py-20" style={{ backgroundColor: "var(--bg-primary)" }}>
       <div className="container">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 leading-tight text-gray-100">
-            <span className="text-amber-500">Experience </span>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 leading-tight" style={{ color: "var(--text-primary)" }}>
+            <span className="text-sb-amber">Experience </span>
             OstrichDB
           </h2>
-          <p className="text-lg text-gray-300">
+          <p className="text-lg" style={{ color: "var(--text-secondary)" }}>
             Choose your interface: Visual tools for everyone, APIs for developers
           </p>
           
           {/* Mode Toggle */}
           <div className="flex justify-center mt-8">
-            <div className="bg-gray-800 rounded-lg p-1 flex">
+            <div className="rounded-lg p-1 flex" style={{ backgroundColor: "var(--bg-primary)" }}>
               <button
                 onClick={() => {setActiveMode("GUI"); setActiveSection(0);}}
                 className={`px-6 py-2 rounded-md text-sm font-medium transition-all ${
                   activeMode === "GUI" 
-                    ? 'bg-amber-600 text-white' 
-                    : 'text-gray-400 hover:text-gray-200'
+                    ? 'bg-sb-amber text-white' 
+                    : 'hover:bg-opacity-50'
                 }`}
+                style={{ 
+                  color: activeMode === "GUI" ? "white" : "var(--text-secondary)"
+                }}
               >
                 Visual Interface
               </button>
@@ -168,9 +182,12 @@ GET .../records?minValue=1000&maxValue=3000`,
                 onClick={() => {setActiveMode("API"); setActiveSection(0);}}
                 className={`px-6 py-2 rounded-md text-sm font-medium transition-all ${
                   activeMode === "API" 
-                    ? 'bg-amber-600 text-white' 
-                    : 'text-gray-400 hover:text-gray-200'
+                    ? 'bg-sb-amber text-white' 
+                    : 'hover:bg-opacity-50'
                 }`}
+                style={{ 
+                  color: activeMode === "API" ? "white" : "var(--text-secondary)"
+                }}
               >
                 Developer API
               </button>
@@ -181,30 +198,39 @@ GET .../records?minValue=1000&maxValue=3000`,
         <div className="grid lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {/* Selection Menu */}
           <div className="lg:col-span-1">
-            <div className="bg-gray-800 rounded-lg overflow-hidden border border-gray-700">
+            <div className="rounded-lg overflow-hidden border" style={{ 
+              backgroundColor: "var(--bg-primary)", 
+              borderColor: "var(--border-color)" 
+            }}>
               {currentExamples.map((example, index) => (
                 <div
                   key={example.id}
-                  className={`p-4 cursor-pointer transition-all duration-300 border-b border-gray-700 relative overflow-hidden
+                  className={`p-4 cursor-pointer transition-all duration-300 border-b relative overflow-hidden
                     ${activeSection === index 
-                      ? 'bg-amber-600/10 border-amber-500' 
-                      : 'hover:bg-amber-600/5'
+                      ? 'bg-sb-amber bg-opacity-10 border-sb-amber' 
+                      : 'hover:bg-sb-amber hover:bg-opacity-5'
                     }`}
+                  style={{ 
+                    borderBottomColor: "var(--border-color)"
+                  }}
                   onMouseEnter={() => setActiveSection(index)}
                 >
                   {/* Selection indicator */}
                   {activeSection === index && (
-                    <div className="absolute left-0 top-0 w-1 h-full bg-amber-500"></div>
+                    <div className="absolute left-0 top-0 w-1 h-full bg-sb-amber"></div>
                   )}
                   
                   <div className="flex items-center">
                     <span className="text-2xl mr-3">{example.title.split(' ')[0]}</span>
                     <div>
                       <h3 className={`font-medium text-sm transition-colors
-                          ${activeSection === index ? 'text-amber-400' : 'text-gray-200'}`}>
+                          ${activeSection === index ? 'text-sb-amber' : ''}`}
+                          style={{ 
+                            color: activeSection === index ? undefined : "var(--text-primary)"
+                          }}>
                         {example.title.split(' ').slice(1).join(' ')}
                       </h3>
-                      <p className="text-xs mt-1 text-gray-400">
+                      <p className="text-xs mt-1" style={{ color: "var(--text-secondary)" }}>
                         {example.description}
                       </p>
                     </div>
@@ -216,27 +242,35 @@ GET .../records?minValue=1000&maxValue=3000`,
 
           {/* Content Display Area */}
           <div className="lg:col-span-2">
-            <div className="bg-gray-800 rounded-lg p-6 h-full min-h-[500px] border border-gray-700">
+            <div className="rounded-lg p-6 h-full min-h-[500px] border" style={{ 
+              backgroundColor: "var(--bg-primary)", 
+              borderColor: "var(--border-color)" 
+            }}>
               {activeMode === "API" ? (
                 <>
                   {/* Route display */}
                   <div className="mb-4">
-                    <span className="text-xs uppercase tracking-wide font-medium text-gray-400">
+                    <span className="text-xs uppercase tracking-wide font-medium" style={{ color: "var(--text-secondary)" }}>
                       Example Route
                     </span>
-                    <div className="mt-2 p-3 rounded bg-black/20 font-mono text-sm text-gray-200">
-                      <span className="text-amber-400">{apiExamples[activeSection].route}</span>
+                    <div className="mt-2 p-3 rounded font-mono text-sm" style={{ 
+                      backgroundColor: "var(--bg-secondary)",
+                      color: "var(--text-primary)"
+                    }}>
+                      <span className="text-sb-amber">{apiExamples[activeSection].route}</span>
                     </div>
                   </div>
 
                   {/* Code example */}
                   <div>
-                    <span className="text-xs uppercase tracking-wide font-medium text-gray-400">
+                    <span className="text-xs uppercase tracking-wide font-medium" style={{ color: "var(--text-secondary)" }}>
                       Code Example
                     </span>
-                    <div className="mt-2 p-4 rounded bg-black/20 font-mono text-sm leading-relaxed">
+                    <div className="mt-2 p-4 rounded font-mono text-sm leading-relaxed" style={{ 
+                      backgroundColor: "var(--bg-secondary)"
+                    }}>
                       <pre className="whitespace-pre-wrap">
-                        <code className="text-gray-300">
+                        <code style={{ color: "var(--text-primary)" }}>
                           {apiExamples[activeSection].code}
                         </code>
                       </pre>
@@ -246,7 +280,7 @@ GET .../records?minValue=1000&maxValue=3000`,
                   {/* Visual indicator */}
                   <div className="mt-6 flex items-center">
                     <div className={`w-3 h-3 rounded-full mr-3 bg-gradient-to-r ${apiExamples[activeSection].color}`}></div>
-                    <span className="text-sm text-gray-400">
+                    <span className="text-sm" style={{ color: "var(--text-secondary)" }}>
                       {apiExamples[activeSection].title} • {apiExamples[activeSection].description}
                     </span>
                   </div>
