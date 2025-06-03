@@ -17,17 +17,27 @@ import { Product } from "../types";
 
 export const products: Product[] = [
   {
-    id: "database",
-    name: "Database",
-    description:
-      "Postgres database with powerful features like realtime subscriptions, Row Level Security, and easy scalability.",
-    icon: "Database",
+    id: "hierarchical",
+    name: "🏗️ Hierarchical by Design",
+    description: "Projects → Collections → Clusters → Records. Organize data the way you think about it. No more flat chaos or rigid tables.",
+    icon: "TreePine",
   },
   {
-    id: "auth",
-    name: "Authentication",
-    description:
-      "User management with multiple auth methods like OAuth, magic links, and phone auth.",
-    icon: "KeyRound",
+    id: "typed",
+    name: "🎯 Strongly Typed Records", 
+    description: "Every Record has a guaranteed type: STRING, INTEGER, BOOLEAN, arrays of any type. Zero runtime surprises.",
+    icon: "Target",
   },
+  {
+    id: "secure",
+    name: "🔒 Secure by Default",
+    description: "Built-in AES-256 encryption per Collection. User-controlled keys. No enterprise upsells required.",
+    icon: "Shield",
+  },
+  {
+    id: "performance",
+    name: "⚡ Native Performance",
+    description: "Written in Odin, compiled to native code. No VM overhead, no JavaScript bottlenecks. Just fast.",
+    icon: "Zap",
+  }
 ];
