@@ -1,4 +1,18 @@
-// src/components/home/APIShowcase.tsx
+/**
+ * =================================================
+ * #Author: Marshall A. Burns
+ * GitHub: @SchoolyB
+ * #Contributors:
+ *           
+ *
+ * License: Apache License 2.0 (see LICENSE file for details)
+ * Copyright (c) 2025-Present Archetype Dynamics, Inc.
+ * #File Description:
+ *    Contains the CodeShowcase component for displaying API examples.
+ * =================================================
+ **/
+
+
 import React, { useState } from "react";
 
 const CodeShowcase: React.FC = () => {
@@ -107,7 +121,7 @@ PUT .../records/old-name?newName=new-name`,
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {/* Selection Menu - Fighter Game Style */}
+          {/* Selection Menu*/}
           <div className="lg:col-span-1">
             <div 
               className="rounded-lg overflow-hidden border-2"
