@@ -16,26 +16,45 @@
 import React from "react";
 
 const features = [
+  
   {
     id: 1,
+    emoji: "🎨",
+    name: "Visual Design",
+    description: "Build and mange databases through a clean, intuitive interface."
+  },
+  {
+    id: 2,
+    emoji: "🗣️",
+    name: "Natural Language Queries",
+    description: "Make queurying data as easy as asking a question. No SQL, no syntax, just results."
+  },
+  {
+    id: 3,
+    emoji: "🚀",
+    name: "Zero Setup",
+    description: "Start building immediately - no configuration required"
+  },
+  {
+    id: 4,
     emoji: "🏗️",
     name: "Hierarchical by Design",
     description: "Projects → Collections → Clusters → Records. Organize data the way you think about it."
   },
   {
-    id: 2,
+    id: 5,
     emoji: "💪",
     name: "Strongly Typed Records",
     description: "Every Record has a guaranteed type: STRING, INTEGER, BOOLEAN, arrays of any type. Zero runtime surprises."
   },
   {
-    id: 3,
+    id: 6,
     emoji: "🔒",
     name: "Secure by Default",
     description: "Built-in AES-256 encryption per Collection. User-controlled keys. No enterprise upsells required."
   },
   {
-    id: 4,
+    id: 7,
     emoji: "⚡",
     name: "Native Performance",
     description: "Written in Odin, compiled to native code. No VM overhead, no JavaScript bottlenecks. Just fast."
@@ -52,11 +71,11 @@ const Features: React.FC = () => {
             style={{ color: "var(--text-primary)" }}
           >
             Why <span className="gradient-text">Ostrich</span>
-            <span>DB</span> is different
+            <span>DB</span> Is Different
           </h2>
 
           <p className="text-lg" style={{ color: "var(--text-secondary)" }}>
-            Finally, a NoSQL database with structure, safety, and speed built-in.
+            Structure, Safety, & Speed
           </p>
         </div>
 
@@ -92,7 +111,7 @@ const Features: React.FC = () => {
                     <div className="text-4xl mb-6">{feature.emoji}</div>
                     
                     {/* Special tree structure for hierarchical feature */}
-                    {feature.id === 1 ? (
+                    {feature.id === 4 ? (
                       <div>
                         <div className="flex flex-col items-center space-y-2 mb-4">
                           <div
