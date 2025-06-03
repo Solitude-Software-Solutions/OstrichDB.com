@@ -23,7 +23,7 @@ import Hero from "./components/home/Hero";
 import CTA from "./components/home/CTA";
 import Features from "./components/home/Features";
 import CodeShowcase from "./components/home/InteractiveShowcase";
-import CodeComparison from "./components/home/CodeComparison";
+import CodeComparison from "./components/home/ProblemSolution";
 import { ThemeProvider } from "./context/ThemeContext";
 
 // Kinde authentication .env variables

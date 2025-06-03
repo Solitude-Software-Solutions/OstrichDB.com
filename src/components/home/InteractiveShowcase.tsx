@@ -7,17 +7,22 @@
  * License: Apache License 2.0 (see LICENSE file for details)
  * Copyright (c) 2025-Present Archetype Dynamics, Inc.
  * #File Description:
- *    Interactive showcase component with API/GUI toggle functionality.
+ *    Interactive showcase component with staggered fade in animations.
  * =================================================
  **/
 
 import React, { useState } from "react";
 import ClusterEditor from "./SampleClusterEditor";
 import TerminalQueryEditor from "./SampleQueryEditor";
+import { useScrollAnimation, getAnimationClasses } from "../../utils/hooks/useScrollAnimation";
 
 const InteractiveShowcase: React.FC = () => {
-  const [activeMode, setActiveMode] = useState("GUI"); // "API" or "GUI"
+  const [activeMode, setActiveMode] = useState("GUI");
   const [activeSection, setActiveSection] = useState(0);
+  const { elementRef, isVisible } = useScrollAnimation({
+    threshold: 0.1,
+    rootMargin: '0px 0px -100px 0px'
+  });
 
   // API examples
   const apiExamples = [
@@ -64,7 +69,7 @@ GET .../records?minValue=1000&maxValue=3000`,
     }
   ];
 
-  // GUI examples - Updated to use Terminal instead of Data Visualization
+  // GUI examples
   const guiExamples = [
     {
       id: 0,
@@ -151,20 +156,35 @@ GET .../records?minValue=1000&maxValue=3000`,
   };
 
   return (
-    <section className="py-20" style={{ backgroundColor: "var(--bg-primary)" }}>
+    <section 
+      ref={elementRef}
+      className="py-20" 
+      style={{ backgroundColor: "var(--bg-primary)" }}
+    >
       <div className="container">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 leading-tight" style={{ color: "var(--text-primary)" }}>
+          <h2 
+            className={`text-3xl md:text-4xl lg:text-5xl font-bold mb-6 leading-tight ${
+              getAnimationClasses(isVisible, 'staggered', 0)
+            }`}
+            style={{ color: "var(--text-primary)" }}
+          >
             <span className="text-sb-amber">Experience </span>
             OstrichDB
           </h2>
-          <p className="text-lg" style={{ color: "var(--text-secondary)" }}>
+          
+          <p 
+            className={`text-lg ${getAnimationClasses(isVisible, 'staggered', 100)}`}
+            style={{ color: "var(--text-secondary)" }}
+          >
             Choose your interface: Visual tools for everyone, APIs for developers
           </p>
           
           {/* Mode Toggle */}
-          <div className="flex justify-center mt-8">
-            <div className="rounded-lg p-1 flex" style={{ backgroundColor: "var(--bg-primary)" }}>
+          <div className={`flex justify-center mt-8 ${
+            getAnimationClasses(isVisible, 'staggered', 200)
+          }`}>
+            <div className="rounded-lg p-1 flex" style={{ backgroundColor: "var(--bg-secondary)" }}>
               <button
                 onClick={() => {setActiveMode("GUI"); setActiveSection(0);}}
                 className={`px-6 py-2 rounded-md text-sm font-medium transition-all ${
@@ -197,9 +217,11 @@ GET .../records?minValue=1000&maxValue=3000`,
 
         <div className="grid lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {/* Selection Menu */}
-          <div className="lg:col-span-1">
+          <div className={`lg:col-span-1 ${
+            getAnimationClasses(isVisible, 'staggered', 300)
+          }`}>
             <div className="rounded-lg overflow-hidden border" style={{ 
-              backgroundColor: "var(--bg-primary)", 
+              backgroundColor: "var(--bg-secondary)", 
               borderColor: "var(--border-color)" 
             }}>
               {currentExamples.map((example, index) => (
@@ -241,9 +263,11 @@ GET .../records?minValue=1000&maxValue=3000`,
           </div>
 
           {/* Content Display Area */}
-          <div className="lg:col-span-2">
+          <div className={`lg:col-span-2 ${
+            getAnimationClasses(isVisible, 'staggered', 400)
+          }`}>
             <div className="rounded-lg p-6 h-full min-h-[500px] border" style={{ 
-              backgroundColor: "var(--bg-primary)", 
+              backgroundColor: "var(--bg-secondary)", 
               borderColor: "var(--border-color)" 
             }}>
               {activeMode === "API" ? (
@@ -254,7 +278,7 @@ GET .../records?minValue=1000&maxValue=3000`,
                       Example Route
                     </span>
                     <div className="mt-2 p-3 rounded font-mono text-sm" style={{ 
-                      backgroundColor: "var(--bg-secondary)",
+                      backgroundColor: "var(--bg-primary)",
                       color: "var(--text-primary)"
                     }}>
                       <span className="text-sb-amber">{apiExamples[activeSection].route}</span>
@@ -267,7 +291,7 @@ GET .../records?minValue=1000&maxValue=3000`,
                       Code Example
                     </span>
                     <div className="mt-2 p-4 rounded font-mono text-sm leading-relaxed" style={{ 
-                      backgroundColor: "var(--bg-secondary)"
+                      backgroundColor: "var(--bg-primary)"
                     }}>
                       <pre className="whitespace-pre-wrap">
                         <code style={{ color: "var(--text-primary)" }}>
