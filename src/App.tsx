@@ -21,7 +21,9 @@ import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
 import Hero from "./components/home/Hero";
 import CTA from "./components/home/CTA";
-import GetStarted from "./components/home/GetStarted";
+import Features from "./components/home/Features";
+import CodeShowcase from "./components/home/CodeShowcase";
+import CodeComparison from "./components/home/CodeComparison";
 import { ThemeProvider } from "./context/ThemeContext";
 
 // Kinde authentication .env variables
@@ -76,8 +78,10 @@ function App() {
                   element={
                     <>
                       <Hero />
+                      <CodeComparison />
+                      <CodeShowcase />
+                      <Features />
                       <CTA />
-                      <GetStarted />
                     </>
                   }
                 />
