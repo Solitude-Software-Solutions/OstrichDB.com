@@ -39,8 +39,8 @@ const ProblemSolution: React.FC = () => {
       problemTitle: "Runtime Surprises",
       problemDescription: "\"undefined is not a function\" errors everywhere. Schema chaos and unpredictable data types.",
       problemTags: ["MongoDB", "Supabase"],
-      solutionTitle: "Guaranteed Types",
-      solutionDescription: "Every record has a declared type: STRING, INTEGER, BOOLEAN, arrays. Zero runtime surprises, ever.",
+      solutionTitle: "Explicit Types",
+      solutionDescription: "Every record must have an explicit type, ensuring type safety at all times.",
       solutionIcon: "🛡️"
     },
     {
@@ -68,9 +68,7 @@ const ProblemSolution: React.FC = () => {
   return (
     <section 
       ref={elementRef}
-      className="py-20" 
-      style={{ backgroundColor: "var(--bg-primary)" }}
-    >
+      className="py-12 md:py-16 lg:py-20 xl:py-24" style={{ backgroundColor: "var(--bg-primary)" }}>
       <div className="container">
         <div className="text-center mb-16">
           <h2 

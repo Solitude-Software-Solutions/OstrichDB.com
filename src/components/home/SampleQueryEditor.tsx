@@ -219,7 +219,6 @@ const TerminalQueryEditor: React.FC = () => {
     }
   };
 
-
   const handleHelpCommand = (tokens: string[]): QueryResult => {
     if (tokens.length > 1) {
       const command = tokens[1];
@@ -344,37 +343,53 @@ Examples:
       case 'success': return 'text-green-400';
       case 'error': return 'text-red-400';
       case 'info': return 'text-blue-400';
-      default: return 'text-gray-300';
+      default: return 'var(--text-primary)';
     }
   };
 
   return (
     <div className="space-y-4">
       <div className="text-center mb-6">
-        <h3 className="text-xl font-bold text-gray-100 mb-2">Manual Query Editor</h3>
-        <p className="text-gray-400 text-sm">Experience data manipulation via the CLI while your browser</p>
+        <h3 className="text-xl font-bold mb-2" style={{ color: "var(--text-primary)" }}>
+          Manual Query Editor
+        </h3>
+        <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+          Experience data manipulation via the CLI while your browser
+        </p>
       </div>
 
       {/* Terminal Window */}
-      <div className="bg-black rounded-lg border border-gray-600 overflow-hidden">
+      <div 
+        className="rounded-lg border overflow-hidden"
+        style={{ borderColor: "var(--border-color)" }}
+      >
         {/* Terminal Header */}
-        <div className="bg-gray-800 px-4 py-2 flex items-center">
+        <div 
+          className="px-4 py-2 flex items-center"
+          style={{ backgroundColor: "var(--bg-secondary)" }}
+        >
           <div className="flex space-x-2">
             <div className="w-3 h-3 bg-red-500 rounded-full"></div>
             <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
             <div className="w-3 h-3 bg-green-500 rounded-full"></div>
           </div>
-          <div className="ml-4 text-gray-300 text-sm font-mono">Manual Query Editor v1.0.0</div>
+          <div 
+            className="ml-4 text-sm font-mono"
+            style={{ color: "var(--text-primary)" }}
+          >
+            Manual Query Editor v1.0.0
+          </div>
         </div>
 
         {/* Terminal Content */}
         <div 
           ref={terminalRef}
-          className="p-4 h-80 overflow-y-auto font-mono text-sm bg-black"
+          className="p-4 h-80 overflow-y-auto font-mono text-sm"
+          style={{ backgroundColor: "var(--bg-primary)" }}
         >
           {/* Welcome Message */}
           {history.length === 0 && (
-            <div className="text-amber-400 mb-4">
+            <div className="text-sb-amber mb-4">
               Welcome to The Manual Query Editor v1.0.0<br />
               Type 'HELP' for available command
             </div>
@@ -384,10 +399,13 @@ Examples:
           {history.map((entry, index) => (
             <div key={index} className="mb-3">
               <div className="flex items-center">
-                <span className="text-amber-400 mr-2">ostrichdb@demo:~$</span>
-                <span className="text-gray-300">{entry.query}</span>
+                <span className="text-sb-amber mr-2">ostrichdb@demo:~$</span>
+                <span style={{ color: "var(--text-primary)" }}>{entry.query}</span>
               </div>
-              <div className={`mt-1 pl-4 whitespace-pre-wrap ${getResultColor(entry.result.type)}`}>
+              <div 
+                className="mt-1 pl-4 whitespace-pre-wrap"
+                style={{ color: getResultColor(entry.result.type) }}
+              >
                 {entry.result.message}
               </div>
             </div>
@@ -395,32 +413,36 @@ Examples:
 
           {/* Current Input Line */}
           <div className="flex items-center">
-            <span className="text-amber-400 mr-2">ostrichdb@demo:~$</span>
+            <span className="text-sb-amber mr-2">ostrichdb@demo:~$</span>
             <input
               ref={inputRef}
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyPress={handleKeyPress}
-              className="flex-1 bg-transparent text-gray-300 outline-none"
+              className="flex-1 bg-transparent outline-none"
+              style={{ color: "var(--text-primary)" }}
               placeholder="Enter OstrichDB query..."
               disabled={isExecuting}
             />
             {isExecuting && (
-              <span className="text-amber-400 animate-pulse ml-2">⏳</span>
+              <span className="text-sb-amber animate-pulse ml-2">⏳</span>
             )}
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="bg-gray-800 px-4 py-2 flex justify-between items-center">
-          <div className="text-xs text-gray-400">
+        <div 
+          className="px-4 py-2 flex justify-between items-center"
+          style={{ backgroundColor: "var(--bg-secondary)" }}
+        >
+          <div className="text-xs" style={{ color: "var(--text-secondary)" }}>
             Press Enter to execute • Type 'HELP' for commands
           </div>
           <button
             onClick={executeQuery}
             disabled={!query.trim() || isExecuting}
-            className="bg-amber-600 hover:bg-amber-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white px-3 py-1 rounded text-xs font-medium transition-colors"
+            className="bg-sb-amber hover:bg-sb-amber-dark disabled:opacity-50 disabled:cursor-not-allowed text-white px-3 py-1 rounded text-xs font-medium transition-colors"
           >
             {isExecuting ? 'Executing...' : 'Execute'}
           </button>
@@ -428,24 +450,50 @@ Examples:
       </div>
 
       {/* Quick Examples */}
-      <div className="bg-gray-800/30 rounded-lg p-4 border border-gray-600 border-dashed">
-        <div className="text-xs text-gray-400 mb-2">Try these example queries:</div>
+      <div 
+        className="rounded-lg p-4 border border-dashed"
+        style={{ 
+          backgroundColor: "var(--bg-secondary)", 
+          borderColor: "var(--border-color)" 
+        }}
+      >
+        <div className="text-xs mb-2" style={{ color: "var(--text-secondary)" }}>
+          Try these example queries:
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
           <button
             onClick={() => setQuery('COUNT COLLECTIONS')}
-            className="text-left text-sm text-gray-300 hover:text-amber-300 transition-colors p-1 rounded hover:bg-gray-700/30"
+            className="text-left text-sm hover:text-sb-amber transition-colors p-1 rounded"
+            style={{ 
+              color: "var(--text-primary)",
+              backgroundColor: "transparent"
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "var(--bg-primary)"}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
           >
             • COUNT COLLECTIONS
           </button>
           <button
             onClick={() => setQuery('FETCH ecommerce.products.laptop-pro')}
-            className="text-left text-sm text-gray-300 hover:text-amber-300 transition-colors p-1 rounded hover:bg-gray-700/30"
+            className="text-left text-sm hover:text-sb-amber transition-colors p-1 rounded"
+            style={{ 
+              color: "var(--text-primary)",
+              backgroundColor: "transparent"
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "var(--bg-primary)"}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
           >
             • FETCH ecommerce.products.laptop-pro
           </button>
           <button
             onClick={() => setQuery('NEW store.items.phone OF_TYPE STRING WITH "iPhone 15"')}
-            className="text-left text-sm text-gray-300 hover:text-amber-300 transition-colors p-1 rounded hover:bg-gray-700/30"
+            className="text-left text-sm hover:text-sb-amber transition-colors p-1 rounded"
+            style={{ 
+              color: "var(--text-primary)",
+              backgroundColor: "transparent"
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "var(--bg-primary)"}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
           >
             • NEW store.items.phone OF_TYPE STRING WITH "iPhone 15"
           </button>

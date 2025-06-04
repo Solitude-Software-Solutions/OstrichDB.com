@@ -26,8 +26,8 @@ const CTA: React.FC = () => {
   return (
     <section 
       ref={elementRef}
-      className="py-24 relative overflow-hidden"
-    >
+      className="py-16 md:py-20 lg:py-24 xl:py-28 relative overflow-hidden">
+
       <div className="container relative">
         <div className="max-w-3xl mx-auto text-center">
           <h2 
