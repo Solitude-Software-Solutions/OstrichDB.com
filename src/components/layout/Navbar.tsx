@@ -14,7 +14,7 @@
  **/
 
 import React, { useState, useEffect } from "react";
-import { ChevronDown, Menu, X, Github, ExternalLink } from "lucide-react";
+import { ChevronDown, Menu, X, Github, ExternalLink, ArrowUp } from "lucide-react";
 import AuthButtons from "../common/AuthButtons";
 import { navLinks } from "../../data/navLinks";
 import { NavLink } from "../../types";
@@ -22,17 +22,29 @@ import ThemeToggle from "../common/ThemeToggle";
 
 const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [showScrollToTop, setShowScrollToTop] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
+      const scrolled = window.scrollY > 10;
+      setIsScrolled(scrolled);
+      
+      // Show scroll to top button after scrolling 300px
+      setShowScrollToTop(window.scrollY > 300);
     };
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
 
   const toggleDropdown = (label: string) => {
     setActiveDropdown(activeDropdown === label ? null : label);
@@ -43,7 +55,7 @@ const Navbar: React.FC = () => {
 
     return (
       <div
-        className={`absolute top-full left-0 w-64 bg-sb-dark-accent rounded-md shadow-lg p-4 transform origin-top-left transition-all duration-200 ${
+        className={`absolute top-full left-0 w-64 bg-sb-dark-accent dark:bg-sb-dark-accent light:bg-sb-cream rounded-md shadow-lg p-4 transform origin-top-left transition-all duration-200 ${
           activeDropdown === link.label
             ? "animate-slide-down opacity-100"
             : "opacity-0 invisible"
@@ -54,11 +66,11 @@ const Navbar: React.FC = () => {
             <a
               key={item.label}
               href={item.href}
-              className="block px-3 py-2 text-sm hover:bg-gray-700 rounded-md transition-colors"
+              className="block px-3 py-2 text-sm hover:bg-gray-700 dark:hover:bg-gray-700 light:hover:bg-gray-200 rounded-md transition-colors"
             >
               <div className="font-medium">{item.label}</div>
               {item.description && (
-                <div className="text-gray-400 text-xs mt-1">
+                <div className="text-gray-400 dark:text-gray-400 light:text-gray-600 text-xs mt-1">
                   {item.description}
                 </div>
               )}
@@ -70,20 +82,19 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <nav
-      className={`fixed w-full z-50 transition-all duration-300 ${
-        isScrolled
-          ? " bg-sb-dark shadow-lg text-sb-cream dark:text-sb-light"
-          : " bg-sb-dark text-sb-cream dark:text-sb-light"
-      }
-     `}
-    >
+    <>
+      <nav
+        className={`fixed w-full z-50 transition-all duration-300 text-sb-cream dark:text-sb-light ${
+          isScrolled ? 'opacity-0 pointer-events-none' : 'opacity-100'
+        }`}
+        style={{ color: 'var(--text-primary)' }}
+      >
       <div className="container py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
           <a href="#" className="flex items-center space-x-2">
             <span className="font-bold text-xl">
-              <span className="text-[var(--logo-text-primary)]">Ostrich</span>
+              <span className="text-[var(--logo-primary)]">Ostrich</span>
               <span className="text-[var(--logo-secondary)]">DB</span>
             </span>
           </a>
@@ -101,7 +112,10 @@ const Navbar: React.FC = () => {
                 // hides active dropdown as soon as mouse leaves dropdown
                 onMouseLeave={() => setActiveDropdown(null)}
               >
-                <button className="flex items-center space-x-1 text-white transition-colors">
+                <button 
+                  className="flex items-center space-x-1 transition-colors"
+                  style={{ color: 'var(--text-primary)' }}
+                >
                   <span>{link.label}</span>
                   {link.isDropdown && <ChevronDown size={16} />}
                 </button>
@@ -111,13 +125,13 @@ const Navbar: React.FC = () => {
           </div>
 
           {/* Action Buttons */}
-
           <div className="hidden md:flex items-center space-x-4">
             <ThemeToggle />
             <a
               href="https://github.com/Archetype-Dynamics/OstrichDB.com"
               target="_blank"
               className="text-sb-gray hover:text-white transition-colors"
+              style={{ color: 'var(--text-secondary)' }}
             >
               <Github size={20} />
             </a>
@@ -127,7 +141,10 @@ const Navbar: React.FC = () => {
           {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center space-x-2">
             <ThemeToggle />
-            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+            <button 
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              style={{ color: 'var(--text-primary)' }}
+            >
               {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>
@@ -136,11 +153,12 @@ const Navbar: React.FC = () => {
 
       {/* Mobile Menu */}
       <div
-        className={`md:hidden bg-sb-dark-accent absolute w-full transition-all duration-300 ease-in-out ${
+        className={`md:hidden absolute w-full transition-all duration-300 ease-in-out ${
           mobileMenuOpen
             ? "max-h-[80vh] opacity-100"
             : "max-h-0 opacity-0 invisible"
         } overflow-hidden`}
+        style={{ backgroundColor: 'var(--bg-secondary)' }}
       >
         <div className="container py-4 space-y-4">
           {navLinks.map((link) => (
@@ -152,6 +170,7 @@ const Navbar: React.FC = () => {
                     : setMobileMenuOpen(false)
                 }
                 className="flex items-center justify-between w-full text-left"
+                style={{ color: 'var(--text-primary)' }}
               >
                 <span>{link.label}</span>
                 {link.isDropdown && (
@@ -174,7 +193,8 @@ const Navbar: React.FC = () => {
                     <a
                       key={item.label}
                       href={item.href}
-                      className="block py-2 text-sm text-gray-300 hover:text-white"
+                      className="block py-2 text-sm hover:opacity-80"
+                      style={{ color: 'var(--text-secondary)' }}
                     >
                       {item.label}
                     </a>
@@ -186,6 +206,21 @@ const Navbar: React.FC = () => {
         </div>
       </div>
     </nav>
+
+    {/* Scroll to Top Button */}
+    <button
+      onClick={scrollToTop}
+      className={`fixed right-6 bottom-6 z-50 w-12 h-12 rounded-full bg-sb-amber hover:bg-sb-amber-dark shadow-lg transition-all duration-300 flex items-center justify-center ${
+        showScrollToTop ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
+      }`}
+      style={{
+        color: 'var(--text-primary)'
+      }}
+      aria-label="Scroll to top"
+    >
+      <ArrowUp size={20} />
+    </button>
+  </>
   );
 };
 
