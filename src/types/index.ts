@@ -19,14 +19,6 @@ export interface Product {
   icon: string;
 }
 
-export interface Testimonial {
-  id: string;
-  quote: string;
-  author: string;
-  role: string;
-  company: string;
-  logoUrl: string;
-}
 
 export interface PricingTier {
   name: string;

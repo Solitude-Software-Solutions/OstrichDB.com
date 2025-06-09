@@ -5,6 +5,7 @@
  * #Contributors:
  *           @SchoolyB
  *           @GaleSSalazar
+ *           @FedaElvis
  *
  * License: Apache License 2.0 (see LICENSE file for details)
  * Copyright (c) 2025-Present Archetype Dynamics, Inc.
@@ -16,6 +17,8 @@
 import React, { useEffect, useState } from "react";
 import { KindeProvider } from "@kinde-oss/kinde-auth-react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { createTheme, MantineProvider } from "@mantine/core";
+import "@mantine/core/styles.css";
 
 import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
@@ -24,6 +27,7 @@ import CTA from "./components/home/CTA";
 import Features from "./components/home/Features";
 import CodeShowcase from "./components/home/InteractiveShowcase";
 import CodeComparison from "./components/home/ProblemSolution";
+import Dashboard from "./pages/dashboard";
 import { ThemeProvider } from "./context/ThemeContext";
 
 // Kinde authentication .env variables
@@ -31,6 +35,35 @@ const clientId = import.meta.env.VITE_KINDE_CLIENT_ID;
 const domain = import.meta.env.VITE_KINDE_DOMAIN;
 const logoutUri = import.meta.env.VITE_KINDE_LOGOUT_URL;
 const redirectUri = import.meta.env.VITE_KINDE_REDIRECT_URL;
+
+// Mantine theme configuration
+const theme = createTheme({
+  colors: {
+    sbPurple: [
+      "#f3e8ff",
+      "#e9d5ff",
+      "#d8b4fe",
+      "#c084fc",
+      "#a855f7",
+      "#9333ea",
+      "#7e22ce",
+      "#6b21a8",
+      "#581c87",
+      "#4c1d95"
+    ],
+  },
+  primaryColor: "sbPurple",
+  fontFamily: "Inter, sans-serif",
+  headings: { fontFamily: "Inter, sans-serif" },
+  defaultRadius: "md",
+  components: {
+    Button: {
+      defaultProps: {
+        variant: "filled",
+      },
+    },
+  },
+});
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -64,33 +97,34 @@ function App() {
       redirectUri={redirectUri}
       logoutUri={logoutUri}
     >
-      <ThemeProvider>
-        <Router>
-          <div
-            className="min-h-screen flex flex-col"
-            style={{ backgroundColor: "var(--bg-primary)" }}
-          >
-            <Navbar />
-            <main className="flex-1">
-              <Routes>
-                <Route
-                  path="/"
-                  element={
-                    <>
+      <MantineProvider theme={theme}>
+        <ThemeProvider>
+          <Router>
+            <Routes>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route
+                path="/"
+                element={
+                  <div
+                    className="min-h-screen flex flex-col"
+                    style={{ backgroundColor: "var(--bg-primary)" }}
+                  >
+                    <Navbar />
+                    <main className="flex-1">
                       <Hero />
                       <CodeComparison />
                       <CodeShowcase />
                       <Features />
                       <CTA />
-                    </>
-                  }
-                />
-              </Routes>
-            </main>
-            <Footer />
-          </div>
-        </Router>
-      </ThemeProvider>
+                    </main>
+                    <Footer />
+                  </div>
+                }
+              />
+            </Routes>
+          </Router>
+        </ThemeProvider>
+      </MantineProvider>
     </KindeProvider>
   );
 }
