@@ -1,7 +1,22 @@
+/**
+ * =================================================
+ * #Author: Feda Elvis
+ * GitHub: @FedaElvis
+ *           
+ * #Contributors:
+ *           @SchoolyB
+ *
+ * License: Apache License 2.0 (see LICENSE file for details)
+ * Copyright (c) 2025-Present Archetype Dynamics, Inc.
+ * #File Description:
+ *    The component for managing a users projects in the dashboard.
+ * =================================================
+ **/
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const MainBoard: React.FC = () => {
+const ProjectsComponent: React.FC = () => {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [projectData, setProjectData] = useState({
@@ -122,4 +137,4 @@ const MainBoard: React.FC = () => {
   );
 };
 
-export default MainBoard;
+export default ProjectsComponent

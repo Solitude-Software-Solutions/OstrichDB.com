@@ -27,8 +27,7 @@ import CTA from "./components/home/CTA";
 import Features from "./components/home/Features";
 import CodeShowcase from "./components/home/InteractiveShowcase";
 import CodeComparison from "./components/home/ProblemSolution";
-import Dashboard from "./components/dashboard/DashboardPage";
-import DatabaseSelection from "./components/databaseSelection/databaseSelection";
+import Dashboard from "./pages/dashboard";
 import { ThemeProvider } from "./context/ThemeContext";
 
 // Kinde authentication .env variables
@@ -103,7 +102,6 @@ function App() {
           <Router>
             <Routes>
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/databaseSelection" element={<DatabaseSelection />} />
               <Route
                 path="/"
                 element={
