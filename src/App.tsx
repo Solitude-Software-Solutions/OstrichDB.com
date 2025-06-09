@@ -28,6 +28,7 @@ import Features from "./components/home/Features";
 import CodeShowcase from "./components/home/InteractiveShowcase";
 import CodeComparison from "./components/home/ProblemSolution";
 import Dashboard from "./pages/dashboard";
+import NotFound from './components/NotFound';
 import { ThemeProvider } from "./context/ThemeContext";
 
 // Kinde authentication .env variables
@@ -96,6 +97,7 @@ function App() {
       domain={domain}
       redirectUri={redirectUri}
       logoutUri={logoutUri}
+      
     >
       <MantineProvider theme={theme}>
         <ThemeProvider>
@@ -121,6 +123,7 @@ function App() {
                   </div>
                 }
               />
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </Router>
         </ThemeProvider>
