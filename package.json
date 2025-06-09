@@ -1,25 +1,31 @@
 {
-  "name": "vite-react-typescript-starter",
+  "name": "ostrichdb_webapp",
   "private": true,
-  "version": "0.0.0",
+  "version": "Rel_v1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "lint": "eslint .",
+    "lint": "eslint . --max-warnings 0",
+    "lint:fix": "eslint . --fix",
+    "type-check": "tsc --noEmit",
     "preview": "vite preview",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage"
   },
   "dependencies": {
+    "@kinde-oss/kinde-auth-react": "^5.4.1",
     "@mantine/core": "^8.0.2",
     "@mantine/hooks": "^8.0.2",
     "@tabler/icons-react": "^3.33.0",
+    "@types/node": "^22.15.30",
     "lucide-react": "^0.344.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-router-dom": "^7.6.1"
+    "react-router-dom": "^7.6.1",
+    "type-check": "^0.4.0",
+    "yarn": "^1.22.22"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",
@@ -27,7 +33,6 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^14.6.1",
     "@types/jest": "^29.5.14",
-    "@types/node": "^22.15.30",
     "@types/react": "^19.1.6",
     "@types/react-dom": "^19.1.5",
     "@types/react-router-dom": "^5.3.3",
