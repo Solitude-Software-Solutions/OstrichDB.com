@@ -1,15 +1,15 @@
 /**
  * =================================================
- * #Author: Kasi Reeves
+ * Author: Kasi Reeves
  * GitHub: @Kasirocswell
- * #Contributors:
+ * Contributors:
  *           @SchoolyB
  *           @GaleSSalazar
  *           @FedaElvis
  *
  * License: Apache License 2.0 (see LICENSE file for details)
  * Copyright (c) 2025-Present Archetype Dynamics, Inc.
- * #File Description:
+ * File Description:
  *    Main application component that assembles the page layout.
  * =================================================
  **/

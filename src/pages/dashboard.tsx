@@ -1,15 +1,15 @@
 
 /**
  * =================================================
- * #Author: Feda Elvis
+ * Author: Feda Elvis
  * GitHub: @FedaElvis
  *           
- * #Contributors:
+ * Contributors:
  *           @SchoolyB
  *
  * License: Apache License 2.0 (see LICENSE file for details)
  * Copyright (c) 2025-Present Archetype Dynamics, Inc.
- * #File Description:
+ * File Description:
  *    The main dashboard page. Renders the following components:
  *    - ProjectsComponent: Displays the user's projects.
  *    - CollectionsComponent: Displays the user's collections within projects.

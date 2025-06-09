@@ -1,14 +1,14 @@
 /**
  * =================================================
- * #Author: Kasi Reeves
+ * Author: Kasi Reeves
  * GitHub: @Kasirocswell
- * #Contributors:
+ * Contributors:
  *           @SchoolyB
  *           @GaleSSalazar
  *
  * License: Apache License 2.0 (see LICENSE file for details)
  * Copyright (c) 2025-Present Archetype Dynamics, Inc.
- * #File Description:
+ * File Description:
  *    Contains the Hero component with fade up + scale animation.
  * =================================================
  **/
@@ -35,9 +35,9 @@ const Hero: React.FC = () => {
             getAnimationClasses(isVisible, 'fadeUpScale', 0)
           }`}>
             <span style={{ color: "var(--text-primary)" }} className="block">
-              The Database That
+              The Database
             </span>
-            <span className="text-sb-amber block">Gets You</span>
+            <span className="text-sb-amber block">For Everyone</span>
           </h1>
           
           <p

@@ -1,14 +1,14 @@
 /**
 * =================================================
-* #Author: Kasi Reeves
+* Author: Kasi Reeves
 * GitHub: @Kasirocswell  
-* #Contributors: 
+* Contributors: 
 *           @SchoolyB
             @GaleSSalazar
 * 
 * License: Apache License 2.0 (see LICENSE file for details)
 * Copyright (c) 2025-Present Archetype Dynamics, Inc.
-* #File Description:
+* File Description:
 *    Contains global CSS styles, theme variables, utility classes, and scroll animations.
 * =================================================
 **/
@@ -20,21 +20,32 @@
 :root {
   --bg-primary: #121820;
   --bg-secondary: #1e2a38;
-  --text-primary: #eae3d1; /* Changed to cream for dark mode */
-  --text-secondary: #eae3d1; /* Changed to cream for dark mode */
+  --text-primary: #eae3d1;
+  /* Changed to cream for dark mode */
+  --text-secondary: #eae3d1;
+  /* Changed to cream for dark mode */
   --border-color: #2d3748;
-  --logo-primary: #eae3d1; /* Cream color for "Ostrich" in dark mode */
-  --logo-secondary: #e08a2c; /* Amber color for "DB" in dark mode - unchanged */
+  --logo-primary: #eae3d1;
+  /* Cream color for "Ostrich" in dark mode */
+  --logo-secondary: #e08a2c;
+  /* Amber color for "DB" in dark mode - unchanged */
 }
 
 [data-theme="light"] {
-  --bg-primary: #f5f1e8; /* Cream/off-white background color */
-  --bg-secondary: #eae3d1; /* Slightly darker cream for secondary backgrounds */
-  --text-primary: #121820; /* Dark blue text for light mode */
-  --text-secondary: #121820; /* Dark blue text for light mode */
-  --border-color: #d6cfc2; /* Cream-toned border color */
-  --logo-primary: #121820; /* Dark blue color for "Ostrich" in light mode */
-  --logo-secondary: #e08a2c; /* Amber color for "DB" in light mode - unchanged */
+  --bg-primary: #f5f1e8;
+  /* Cream/off-white background color */
+  --bg-secondary: #eae3d1;
+  /* Slightly darker cream for secondary backgrounds */
+  --text-primary: #121820;
+  /* Dark blue text for light mode */
+  --text-secondary: #121820;
+  /* Dark blue text for light mode */
+  --border-color: #d6cfc2;
+  /* Cream-toned border color */
+  --logo-primary: #121820;
+  /* Dark blue color for "Ostrich" in light mode */
+  --logo-secondary: #e08a2c;
+  /* Amber color for "DB" in light mode - unchanged */
 }
 
 body {
@@ -88,39 +99,39 @@ body {
   .delay-100 {
     animation-delay: 100ms;
   }
-  
+
   .delay-200 {
     animation-delay: 200ms;
   }
-  
+
   .delay-300 {
     animation-delay: 300ms;
   }
-  
+
   .delay-400 {
     animation-delay: 400ms;
   }
-  
+
   .delay-500 {
     animation-delay: 500ms;
   }
-  
+
   .delay-600 {
     animation-delay: 600ms;
   }
-  
+
   .delay-700 {
     animation-delay: 700ms;
   }
-  
+
   .delay-800 {
     animation-delay: 800ms;
   }
-  
+
   .delay-900 {
     animation-delay: 900ms;
   }
-  
+
   .delay-1000 {
     animation-delay: 1000ms;
   }
@@ -128,19 +139,15 @@ body {
 
 /* Custom gradients */
 .hero-gradient {
-  background: radial-gradient(
-    circle at 50% -20%,
-    rgba(234, 227, 209, 0.15),
-    transparent 70%
-  );
+  background: radial-gradient(circle at 50% -20%,
+      rgba(234, 227, 209, 0.15),
+      transparent 70%);
 }
 
 .bg-grid {
-  background-image: linear-gradient(
-      to right,
+  background-image: linear-gradient(to right,
       var(--border-color) 1px,
-      transparent 1px
-    ),
+      transparent 1px),
     linear-gradient(to bottom, var(--border-color) 1px, transparent 1px);
   background-size: 20px 20px;
 }
@@ -151,6 +158,7 @@ body {
     opacity: 0;
     transform: translateY(2rem);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -162,6 +170,7 @@ body {
     opacity: 0;
     transform: translateY(2rem) scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -173,6 +182,7 @@ body {
     opacity: 0;
     transform: translateX(-3rem);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -184,6 +194,7 @@ body {
     opacity: 0;
     transform: translateX(3rem);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -195,6 +206,7 @@ body {
     opacity: 0;
     transform: translateY(1.5rem);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -214,6 +226,7 @@ html {
 
 /* Reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {

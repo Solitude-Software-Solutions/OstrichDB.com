@@ -1,13 +1,13 @@
 /**
  * =================================================
- * #Author: Marshall A. Burns
+ * Author: Marshall A. Burns
  * GitHub:@SchoolyB
- * #Contributors:
+ * Contributors:
  *
  *
  * License: Apache License 2.0 (see LICENSE file for details)
  * Copyright (c) 2025-Present Archetype Dynamics, Inc.
- * #File Description:
+ * File Description:
  *    Provides theme context and functionality for light/dark mode switching.
  * =================================================
  **/

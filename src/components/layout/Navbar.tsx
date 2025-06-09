@@ -1,22 +1,24 @@
 /**
  * =================================================
- * #Author: Kasi Reeves
+ * Author: Kasi Reeves
  * GitHub: @Kasirocswell
- * #Contributors:
+ * Contributors:
  *           @SchoolyB
- *           @GaleSSalzar
+ *           @GaleSSalazar
  *           @FedaElvis
  *
  * License: Apache License 2.0 (see LICENSE file for details)
  * Copyright (c) 2025-Present Archetype Dynamics, Inc.
- * #File Description:
+ * File Description:
  *    Contains the Navbar component with responsive navigation and dropdowns.
  * =================================================
  **/
 
 import React, { useState, useEffect } from "react";
 import { ChevronDown, Menu, X, Github, ExternalLink, ArrowUp } from "lucide-react";
+import { useKindeAuth } from "@kinde-oss/kinde-auth-react";
 import AuthButtons from "../common/AuthButtons";
+import ProfileDropdown from "../common/UserProfileDropdown"; // Add this import
 import { navLinks } from "../../data/navLinks";
 import { NavLink } from "../../types";
 import ThemeToggle from "../common/ThemeToggle";
@@ -26,6 +28,9 @@ const Navbar: React.FC = () => {
   const [showScrollToTop, setShowScrollToTop] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  
+  // Add Kinde auth hook
+  const { isAuthenticated, isLoading } = useKindeAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -136,12 +141,17 @@ const Navbar: React.FC = () => {
             >
               <Github size={20} />
             </a>
-            <AuthButtons />
+            
+            {/* Conditional rendering based on authentication */}
+            {!isLoading && (
+              isAuthenticated ? <ProfileDropdown /> : <AuthButtons />
+            )}
           </div>
 
           {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center space-x-2">
             <ThemeToggle />
+            {!isLoading && isAuthenticated && <ProfileDropdown />}
             <button 
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               style={{ color: 'var(--text-primary)' }}
@@ -204,6 +214,13 @@ const Navbar: React.FC = () => {
               )}
             </div>
           ))}
+          
+          {/* Mobile Auth Section */}
+          {!isLoading && !isAuthenticated && (
+            <div className="pt-4 border-t border-gray-600">
+              <AuthButtons />
+            </div>
+          )}
         </div>
       </div>
     </nav>
