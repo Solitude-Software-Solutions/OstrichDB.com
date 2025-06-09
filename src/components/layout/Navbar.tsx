@@ -93,7 +93,7 @@ const Navbar: React.FC = () => {
       <div className="container py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <a href="#" className="flex items-center space-x-2">
+          <a href="/" className="flex items-center space-x-2">
             <span className="font-bold text-xl">
               <span className="text-[var(--logo-primary)]">Ostrich</span>
               <span className="text-[var(--logo-secondary)]">DB</span>
