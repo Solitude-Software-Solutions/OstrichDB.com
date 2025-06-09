@@ -25,9 +25,6 @@ import Footer from "./components/layout/Footer";
 import Hero from "./components/home/Hero";
 import CTA from "./components/home/CTA";
 import Features from "./components/home/Features";
-import Testimonials from "./components/home/Testimonials";
-import Pricing from "./components/home/Pricing";
-import CompanyStats from "./components/home/CompanyStats";
 import CodeShowcase from "./components/home/InteractiveShowcase";
 import CodeComparison from "./components/home/ProblemSolution";
 import Dashboard from "./components/dashboard/DashboardPage";
@@ -117,12 +114,9 @@ function App() {
                     <Navbar />
                     <main className="flex-1">
                       <Hero />
-                      <CompanyStats />
                       <CodeComparison />
                       <CodeShowcase />
                       <Features />
-                      <Testimonials />
-                      <Pricing />
                       <CTA />
                     </main>
                     <Footer />
