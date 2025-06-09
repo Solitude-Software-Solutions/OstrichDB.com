@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import MainBoard from '../../components/dashboard/MainBoard';
 import { MemoryRouter } from 'react-router-dom';
+import ProjectsComponent from '../../components/dashboard/ProjectsComponent';
 
 // Mock the useNavigate hook
 jest.mock('react-router-dom', () => ({
@@ -9,16 +9,16 @@ jest.mock('react-router-dom', () => ({
   useNavigate: () => jest.fn(),
 }));
 
-describe('MainBoard Component', () => {
+describe('Projects Component', () => {
   beforeEach(() => {
     render(
       <MemoryRouter>
-        <MainBoard />
+      <ProjectsComponent/>
       </MemoryRouter>
     );
   });
 
-  test('renders the main board with initial elements', () => {
+  test('renders the Projects dashboard components initial elements', () => {
     expect(screen.getByText('Create project')).toBeInTheDocument();
     expect(screen.getByText('Example project')).toBeInTheDocument();
     expect(
