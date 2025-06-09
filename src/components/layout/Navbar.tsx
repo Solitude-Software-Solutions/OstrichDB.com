@@ -13,12 +13,14 @@
 **/
 
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, Menu, X, Github, ExternalLink } from 'lucide-react';
+import { ChevronDown, Menu, X, Github, Link} from 'lucide-react';
 import { navLinks } from '../../data/navLinks';
 import { NavLink } from '../../types';
 import ThemeToggle from '../common/ThemeToggle';
+import { useNavigate } from 'react-router-dom';
 
 const Navbar: React.FC = () => {
+  const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
@@ -63,6 +65,10 @@ const Navbar: React.FC = () => {
     );
   };
 
+  const handleStartFree = () => {
+    navigate('/dashboard');
+  };
+
   return (
     <nav
       className={`fixed w-full z-50 transition-all duration-300 ${
@@ -101,12 +107,12 @@ const Navbar: React.FC = () => {
             <a href="#" className="text-sb-cream hover:text-white transition-colors">
               <Github size={20} />
             </a>
-            <a href="#" className="btn btn-outline text-sm">
+            <Link to="/usersDashboard" className="btn btn-outline text-sm">
               Sign In
-            </a>
-            <a href="#" className="btn btn-primary text-sm">
+            </Link>
+            <button onClick={handleStartFree} className="btn btn-primary text-sm">
               Start Free
-            </a>
+            </button>
           </div>
 
           {/* Mobile Menu Button */}

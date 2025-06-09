@@ -22,6 +22,42 @@ import Pricing from './components/home/Pricing';
 import CTA from './components/home/CTA';
 import CompanyStats from './components/home/CompanyStats';
 import { ThemeProvider } from './context/ThemeContext';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Dashboard from './components/dashboard/DashboardPage';
+import { createTheme, MantineProvider } from '@mantine/core';
+import '@mantine/core/styles.css';
+import DatabaseSelection from './components/databaseSelection/databaseSelection';
+
+
+const theme = createTheme({
+  colors: {
+    sbPurple: [
+      '#f3e8ff',
+      '#e9d5ff',
+      '#d8b4fe',
+      '#c084fc',
+      '#a855f7',
+      '#9333ea',
+      '#7e22ce',
+      '#6b21a8',
+      '#581c87',
+      '#4c1d95'
+    ],
+  },
+  primaryColor: 'sbPurple',
+  fontFamily: 'Inter, sans-serif',
+  headings: { fontFamily: 'Inter, sans-serif' },
+  defaultRadius: 'md',
+  components: {
+    Button: {
+      defaultProps: {
+        variant: 'filled',
+      },
+    },
+  },
+});
+
+
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -46,20 +82,30 @@ function App() {
   }
 
   return (
+    <MantineProvider theme={theme}>
     <ThemeProvider>
-      <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--bg-primary)' }}>
-        <Navbar />
-        <main className="flex-1">
-          <Hero />
-          <CompanyStats />
-          <Features />
-          <Testimonials />
-          <Pricing />
-          <CTA />
-        </main>
-        <Footer />
-      </div>
+      <Router>
+        <Routes>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/databaseSelection" element={<DatabaseSelection />} />
+          <Route path="/" element={
+            <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--bg-primary)' }}>
+              <Navbar />
+              <main className="flex-1">
+                <Hero />
+                <CompanyStats />
+                <Features />
+                <Testimonials />
+                <Pricing />
+                <CTA />
+              </main>
+              <Footer />
+            </div>
+          } />
+        </Routes>
+      </Router>
     </ThemeProvider>
+    </MantineProvider>
   );
 }
 
