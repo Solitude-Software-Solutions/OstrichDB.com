@@ -16,16 +16,13 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useKindeAuth } from '@kinde-oss/kinde-auth-react';
 import { ArrowLeft, Database, Plus } from 'lucide-react';
 
+
 interface Collection {
   name: string;
-  description?: string;
-  recordCount?: number;
+  createdAt?: string;
   lastModified?: string;
-}
-
-interface CollectionData {
-  name: string;
-  description: string;
+  size?: string;
+  description?: string;
   encryption: boolean;
 }
 
@@ -39,7 +36,7 @@ const CollectionsComponent: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [createLoading, setCreateLoading] = useState(false);
-  const [collectionData, setCollectionData] = useState<CollectionData>({
+  const [collectionData, setCollectionData] = useState<Collection>({
     name: '',
     description: '',
     encryption: true
@@ -52,8 +49,8 @@ const CollectionsComponent: React.FC = () => {
   }, [isAuthenticated, user, projectName]);
 
   const fetchCollections = async () => {
-    console.log('Project Name:', projectName); 
-    console.log('Full URL:', `/api/v1/projects/${encodeURIComponent(projectName!)}/collections`);
+    console.log('DEBUG: Project Name:', projectName); 
+    console.log('DEBUG: Full URL:', `/api/v1/projects/${encodeURIComponent(projectName!)}/collections`);
     try {
       setLoading(true);
       setError(null);
@@ -62,7 +59,6 @@ const CollectionsComponent: React.FC = () => {
       if (!token) {
         throw new Error('No authentication token available');
       }
-
 
       const response = await fetch(`http://localhost:8042/api/v1/projects/${encodeURIComponent(projectName!)}/collections`, {
         method: 'GET',
@@ -78,20 +74,37 @@ const CollectionsComponent: React.FC = () => {
       }
 
       const data = await response.text();
-
       try {
         const jsonData = JSON.parse(data);
         
         if (jsonData.collections && Array.isArray(jsonData.collections)) {
-          const collectionsArray = jsonData.collections.map((name: string) => ({
-            name,
-            description: 'Database collection', // Placeholder
-            recordCount: Math.floor(Math.random() * 1000), // Placeholder
-            lastModified: 'Recently' // Placeholder
-          }));
+          // Handle both string arrays (old format) and object arrays (new format)
+          const collectionsArray = jsonData.collections.map((item: string | Collection) => {
+            if (typeof item === 'string') {
+              
+              return {
+                name: item,
+                description: 'Database collection',
+                lastModified: 'Recently',
+                createdAt: 'Unknown',
+                size: 'Unknown',
+                encryption: true
+              };
+            } else {
+              
+              return {
+                name: item.name,
+                description: 'Database collection',
+                lastModified: item.lastModified || 'Unknown',
+                createdAt: item.createdAt || 'Unknown',
+                size: item.size || 'Unknown',
+                encryption: true
+              };
+            }
+          });
           setCollections(collectionsArray);
         } else {
-          console.log('No collections array found in response');
+          console.log('DEBUG: No collections array found in response');
           setCollections([]);
         }
       } catch (parseError) {
@@ -146,8 +159,8 @@ const CollectionsComponent: React.FC = () => {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
+          'Content-Type': 'application/text',
+          'Accept': 'application/text',
         },
         body: JSON.stringify({
           description: collectionData.description,
@@ -174,7 +187,7 @@ const CollectionsComponent: React.FC = () => {
   };
 
   const handleCollectionClick = (collectionName: string) => {
-    console.log('Clicking collection:', collectionName);
+    console.log('DEBUG: Clicking collection:', collectionName);
     navigate(`/dashboard/projects/${encodeURIComponent(projectName!)}/collections/${encodeURIComponent(collectionName)}`);
   };
 
@@ -258,8 +271,9 @@ const CollectionsComponent: React.FC = () => {
               )}
               
               <div className="space-y-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
-                <p>📊 Records: {collection.recordCount || 0}</p>
-                <p>🕒 Last modified: {collection.lastModified || 'Unknown'}</p>
+                <p>📅 Created: {collection.createdAt !== 'Unknown' && collection.createdAt !== '' ? collection.createdAt : 'Unknown'}</p>
+                <p>🕒 Last modified: {collection.lastModified !== 'Unknown' && collection.lastModified !== '' ? collection.lastModified : 'Recently'}</p>
+                <p>📁 Size: {collection.size !== 'Unknown' && collection.size !== '' ? collection.size : 'Calculating...'}</p>
                 <p>🔒 Encrypted: Yes</p>
               </div>
             </div>
