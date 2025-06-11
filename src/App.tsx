@@ -16,7 +16,7 @@
 
 import React, { useEffect, useState } from "react";
 import { KindeProvider } from "@kinde-oss/kinde-auth-react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useParams } from "react-router-dom";
 import { createTheme, MantineProvider } from "@mantine/core";
 import "@mantine/core/styles.css";
 
@@ -28,6 +28,7 @@ import Features from "./components/home/Features";
 import CodeShowcase from "./components/home/InteractiveShowcase";
 import CodeComparison from "./components/home/ProblemSolution";
 import Dashboard from "./pages/dashboard";
+import CollectionsComponent from "./components/dashboard/CollectionsComponent";
 import NotFound from './components/NotFound';
 import { ThemeProvider } from "./context/ThemeContext";
 
@@ -66,6 +67,48 @@ const theme = createTheme({
   },
 });
 
+// Dashboard Layout Component
+const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <div className="min-h-screen flex flex-col" style={{ backgroundColor: "var(--bg-primary)" }}>
+    <Navbar />
+    <main className="flex-1">
+      {children}
+    </main>
+    <Footer />
+  </div>
+);
+
+// Placeholder component for future cluster management
+const ClusterManagement: React.FC = () => {
+  const { projectName, collectionName } = useParams<{ 
+    projectName: string; 
+    collectionName: string; 
+  }>();
+  
+  return (
+    <div className="flex flex-col items-center justify-center mt-40">
+      <div className="text-center">
+        <h1 className="text-3xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
+          Cluster Management
+        </h1>
+        <p className="text-lg mb-2" style={{ color: 'var(--text-secondary)' }}>
+          Project: {projectName}
+        </p>
+        <p className="text-lg mb-6" style={{ color: 'var(--text-secondary)' }}>
+          Collection: {collectionName}
+        </p>
+        <div className="text-6xl mb-4">🏗️</div>
+        <p className="text-lg" style={{ color: 'var(--text-secondary)' }}>
+          Cluster management interface coming soon...
+        </p>
+        <p className="text-sm mt-4" style={{ color: 'var(--text-secondary)' }}>
+          Here you'll be able to create and manage clusters, add records, and perform queries.
+        </p>
+      </div>
+    </div>
+  );
+};
+
 function App() {
   const [isLoading, setIsLoading] = useState(true);
 
@@ -97,13 +140,42 @@ function App() {
       domain={domain}
       redirectUri={redirectUri}
       logoutUri={logoutUri}
-      
     >
       <MantineProvider theme={theme}>
         <ThemeProvider>
           <Router>
             <Routes>
-              <Route path="/dashboard" element={<Dashboard />} />
+              {/* Dashboard - Project Selection */}
+              <Route 
+                path="/dashboard" 
+                element={
+                  <DashboardLayout>
+                    <Dashboard />
+                  </DashboardLayout>
+                } 
+              />
+              
+              {/* Collections for a specific project */}
+              <Route 
+                path="/dashboard/projects/:projectName/collections" 
+                element={
+                  <DashboardLayout>
+                    <CollectionsComponent />
+                  </DashboardLayout>
+                } 
+              />
+              
+              {/* Cluster management for a specific collection */}
+              <Route 
+                path="/dashboard/projects/:projectName/collections/:collectionName" 
+                element={
+                  <DashboardLayout>
+                    <ClusterManagement />
+                  </DashboardLayout>
+                } 
+              />
+              
+              {/* Home page */}
               <Route
                 path="/"
                 element={
@@ -123,6 +195,8 @@ function App() {
                   </div>
                 }
               />
+              
+              {/* 404 Not Found */}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Router>

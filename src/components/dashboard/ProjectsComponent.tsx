@@ -66,6 +66,15 @@ const ProjectsComponent: React.FC = () => {
         },
       });
 
+      // const response = await fetch('/api/v1/projects', {
+      //   method: 'GET',
+      //   headers: {
+      //     'Authorization': `Bearer ${token}`,
+      //     'Content-Type': 'application/json',
+      //     'Accept': 'application/json',
+      //   },
+      // });
+
       if (!response.ok) {
         throw new Error(`Failed to fetch projects: ${response.status}`);
       }
@@ -133,6 +142,15 @@ const ProjectsComponent: React.FC = () => {
         },
       });
 
+      // const response = await fetch(`/api/v1/projects/${encodeURIComponent(projectData.name)}`,{
+      //   method: 'POST',
+      //   headers: {
+      //     'Authorization': `Bearer ${token}`,
+      //     'Content-Type': 'application/json',
+      //     'Accept': 'application/json',
+      //   },
+      // });
+
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(`Failed to create project: ${errorText}`);
@@ -150,9 +168,8 @@ const ProjectsComponent: React.FC = () => {
       setCreateLoading(false);
     }
   };
-  const handleProjectClick = (projectName: string) => {
-    console.log('Clicking project:', projectName);
-    navigate(`/dashboard/projects/${encodeURIComponent(projectName)}`);
+    const handleProjectClick = (projectName: string) => {
+    navigate(`/dashboard/projects/${encodeURIComponent(projectName)}/collections`);
   };
   if (loading) {
     return (
