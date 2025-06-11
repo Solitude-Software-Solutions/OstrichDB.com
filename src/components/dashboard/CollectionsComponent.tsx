@@ -78,6 +78,45 @@ const CollectionsComponent: React.FC = () => {
     { value: 'dateModified', label: 'Last Modified' }
   ];
 
+  // Collection name validation function
+  const validateCollectionName = (name: string): string | null => {
+    if (!name.trim()) {
+      return 'Collection name is required';
+    }
+    
+    if (name.length > 32) {
+      return 'Collection name must be 32 characters or less';
+    }
+    
+    // Check for invalid characters (only letters, numbers, underscores, and hyphens allowed)
+    const validNameRegex = /^[a-zA-Z0-9_-]+$/;
+    if (!validNameRegex.test(name)) {
+      return 'Collection name can only contain letters, numbers, underscores (_), and hyphens (-)';
+    }
+    
+    // Check for spaces
+    if (name.includes(' ')) {
+      return 'Collection name cannot contain spaces';
+    }
+    
+    return null;
+  };
+
+  // Function to truncate collection names for display
+  const truncateCollectionName = (name: string, maxLength: number = 18): string => {
+    if (name.length <= maxLength) {
+      return name;
+    }
+    return `${name.substring(0, maxLength - 3)}...`;
+  };
+
+  // Check for duplicate collection names
+  const isDuplicateCollectionName = (name: string): boolean => {
+    return collections.some(collection => 
+      collection.name.toLowerCase() === name.toLowerCase()
+    );
+  };
+
   // Memoized sorted collections
   const sortedCollections = useMemo(() => {
     if (!collections.length) return collections;
@@ -211,13 +250,26 @@ const CollectionsComponent: React.FC = () => {
         [name]: value
       }));
     }
+
+    // Clear error when user starts typing in collection name field
+    if (name === 'name' && error) {
+      setError(null);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!collectionData.name.trim()) {
-      setError('Collection name is required');
+    // Validate collection name
+    const nameError = validateCollectionName(collectionData.name);
+    if (nameError) {
+      setError(nameError);
+      return;
+    }
+
+    // Check for duplicate names
+    if (isDuplicateCollectionName(collectionData.name)) {
+      setError('A collection with this name already exists');
       return;
     }
 
@@ -230,7 +282,6 @@ const CollectionsComponent: React.FC = () => {
         throw new Error('No authentication token available');
       }
 
-    
       const response = await fetch(`http://localhost:8042/api/v1/projects/${encodeURIComponent(projectName!)}/collections/${encodeURIComponent(collectionData.name)}`, {
         method: 'POST',
         headers: {
@@ -373,13 +424,17 @@ const CollectionsComponent: React.FC = () => {
               style={{ backgroundColor: 'var(--bg-secondary)' }}
             >
               <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <Database size={24} className="text-sb-amber" />
-                  <h3 className="text-xl font-semibold" style={{ color: 'var(--text-primary)' }}>
-                    {collection.name || 'Unnamed Collection'}
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <Database size={24} className="text-sb-amber flex-shrink-0" />
+                  <h3 
+                    className="text-xl font-semibold truncate" 
+                    style={{ color: 'var(--text-primary)' }}
+                    title={collection.name || 'Unnamed Collection'} // Show full name on hover
+                  >
+                    {truncateCollectionName(collection.name || 'Unnamed Collection')}
                   </h3>
                 </div>
-                <div className="w-3 h-3 bg-green-500 rounded-full" title="Active"></div>
+                <div className="w-3 h-3 bg-green-500 rounded-full flex-shrink-0" title="Active"></div>
               </div>
               
               {collection.description && (
@@ -427,18 +482,36 @@ const CollectionsComponent: React.FC = () => {
       {/* Create Collection Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg w-full max-w-md border-2 border-gray-300 shadow-xl">
-            <h2 className="text-xl font-bold mb-4 text-gray-800">Create New Collection</h2>
+          <div 
+            className="p-6 rounded-lg w-full max-w-md border-2 shadow-xl animate-slide-up"
+            style={{ 
+              backgroundColor: 'var(--bg-primary)', 
+              borderColor: 'var(--border-color, #374151)' 
+            }}
+          >
+            <h2 className="text-xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
+              Create New Collection
+            </h2>
 
             {error && (
-              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+              <div 
+                className="border px-4 py-3 rounded mb-4"
+                style={{ 
+                  backgroundColor: 'var(--error-bg, #fef2f2)', 
+                  borderColor: 'var(--error-border, #fca5a5)',
+                  color: 'var(--error-text, #dc2626)'
+                }}
+              >
                 {error}
               </div>
             )}
 
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
-                <label className="block text-sm font-medium mb-1 text-gray-700">
+                <label 
+                  className="block text-sm font-medium mb-1" 
+                  style={{ color: 'var(--text-primary)' }}
+                >
                   Collection Name *
                 </label>
                 <input
@@ -446,23 +519,39 @@ const CollectionsComponent: React.FC = () => {
                   name="name"
                   value={collectionData.name}
                   onChange={handleInputChange}
-                  className="w-full p-2 border-2 border-gray-300 rounded focus:border-sb-amber focus:outline-none text-gray-800"
-                  placeholder="e.g., users, products, orders"
+                  className="w-full p-2 border-2 rounded focus:border-sb-amber focus:outline-none transition-colors"
+                  style={{ 
+                    backgroundColor: 'var(--bg-secondary)', 
+                    borderColor: 'var(--border-color, #374151)',
+                    color: 'var(--text-primary)'
+                  }}
+                  placeholder="users-data"
                   required
                   disabled={createLoading}
-                  maxLength={50}
+                  maxLength={32}
                 />
+                <div className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>
+                  {collectionData.name.length}/32 characters • Only letters, numbers, underscores (_), and hyphens (-) allowed
+                </div>
               </div>
 
               <div className="mb-4">
-                <label className="block text-sm font-medium mb-1 text-gray-700">
+                <label 
+                  className="block text-sm font-medium mb-1" 
+                  style={{ color: 'var(--text-primary)' }}
+                >
                   Description (Optional)
                 </label>
                 <textarea
                   name="description"
                   value={collectionData.description}
                   onChange={handleInputChange}
-                  className="w-full p-2 border-2 border-gray-300 rounded focus:border-sb-amber focus:outline-none text-gray-800 h-20 resize-none"
+                  className="w-full p-2 border-2 rounded focus:border-sb-amber focus:outline-none transition-colors h-20 resize-none"
+                  style={{ 
+                    backgroundColor: 'var(--bg-secondary)', 
+                    borderColor: 'var(--border-color, #374151)',
+                    color: 'var(--text-primary)'
+                  }}
                   placeholder="Describe what this collection will store..."
                   disabled={createLoading}
                   maxLength={200}
@@ -479,7 +568,7 @@ const CollectionsComponent: React.FC = () => {
                     className="mr-2"
                     disabled={createLoading}
                   />
-                  <span className="text-sm text-gray-700">
+                  <span className="text-sm" style={{ color: 'var(--text-primary)' }}>
                     Enable AES-256 encryption (Recommended)
                   </span>
                 </label>
@@ -493,7 +582,12 @@ const CollectionsComponent: React.FC = () => {
                     setError(null);
                     setCollectionData({ name: '', description: '', encryption: true });
                   }}
-                  className="px-4 py-2 border-2 border-gray-400 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 hover:border-gray-500 transition-all duration-200"
+                  className="px-4 py-2 border-2 rounded-xl transition-all duration-200 hover:opacity-80"
+                  style={{ 
+                    backgroundColor: 'var(--bg-secondary)', 
+                    borderColor: 'var(--border-color, #374151)',
+                    color: 'var(--text-secondary)'
+                  }}
                   disabled={createLoading}
                 >
                   Cancel
@@ -501,7 +595,7 @@ const CollectionsComponent: React.FC = () => {
                 <button
                   type="submit"
                   className="px-6 py-2 bg-sb-amber hover:bg-sb-amber-dark text-white rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={createLoading || !collectionData.name.trim()}
+                  disabled={createLoading || !collectionData.name.trim() || validateCollectionName(collectionData.name) !== null}
                 >
                   {createLoading ? 'Creating...' : 'Create Collection'}
                 </button>

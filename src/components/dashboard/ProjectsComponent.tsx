@@ -66,6 +66,45 @@ const ProjectsComponent: React.FC = () => {
     { value: 'dateModified', label: 'Last Modified' }
   ];
 
+  // Project name validation function
+  const validateProjectName = (name: string): string | null => {
+    if (!name.trim()) {
+      return 'Project name is required';
+    }
+    
+    if (name.length > 32) {
+      return 'Project name must be 32 characters or less';
+    }
+    
+    // Check for invalid characters (only letters, numbers, underscores, and hyphens allowed)
+    const validNameRegex = /^[a-zA-Z0-9_-]+$/;
+    if (!validNameRegex.test(name)) {
+      return 'Project name can only contain letters, numbers, underscores (_), and hyphens (-)';
+    }
+    
+    // Check for spaces
+    if (name.includes(' ')) {
+      return 'Project name cannot contain spaces';
+    }
+    
+    return null;
+  };
+
+  // Function to truncate project names for display
+  const truncateProjectName = (name: string, maxLength: number = 18): string => {
+    if (name.length <= maxLength) {
+      return name;
+    }
+    return `${name.substring(0, maxLength - 3)}...`;
+  };
+
+  // Check for duplicate project names
+  const isDuplicateProjectName = (name: string): boolean => {
+    return projects.some(project => 
+      project.name.toLowerCase() === name.toLowerCase()
+    );
+  };
+
   // Memoized sorted projects
   const sortedProjects = useMemo(() => {
     if (!projects.length) return projects;
@@ -253,12 +292,26 @@ const ProjectsComponent: React.FC = () => {
       ...prev,
       [name]: value
     }));
+    
+    // Clear error when user starts typing in project name field
+    if (name === 'name' && error) {
+      setError(null);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!projectData.name.trim()) {
-      setError('Project name is required');
+    
+    // Validate project name
+    const nameError = validateProjectName(projectData.name);
+    if (nameError) {
+      setError(nameError);
+      return;
+    }
+
+    // Check for duplicate names
+    if (isDuplicateProjectName(projectData.name)) {
+      setError('A project with this name already exists');
       return;
     }
 
@@ -394,13 +447,17 @@ const ProjectsComponent: React.FC = () => {
               style={{ backgroundColor: 'var(--bg-secondary)' }}
             >
               <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <FolderOpen size={24} className="text-sb-amber" />
-                  <h3 className="text-xl font-semibold" style={{ color: 'var(--text-primary)' }}>
-                    {project.name || 'Unnamed Project'}
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <FolderOpen size={24} className="text-sb-amber flex-shrink-0" />
+                  <h3 
+                    className="text-xl font-semibold truncate" 
+                    style={{ color: 'var(--text-primary)' }}
+                    title={project.name || 'Unnamed Project'} // Show full name on hover
+                  >
+                    {truncateProjectName(project.name || 'Unnamed Project')}
                   </h3>
                 </div>
-                <div className="w-3 h-3 bg-green-500 rounded-full" title="Active"></div>
+                <div className="w-3 h-3 bg-green-500 rounded-full flex-shrink-0" title="Active"></div>
               </div>          
               
               <div className="space-y-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
@@ -440,18 +497,36 @@ const ProjectsComponent: React.FC = () => {
       {/* Create Project Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg w-full max-w-md border-2 border-gray-300 shadow-xl">
-            <h2 className="text-xl font-bold mb-4 text-gray-800">Create New Project</h2>
+          <div 
+            className="p-6 rounded-lg w-full max-w-md border-2 shadow-xl animate-slide-up"
+            style={{ 
+              backgroundColor: 'var(--bg-primary)', 
+              borderColor: 'var(--border-color, #374151)' 
+            }}
+          >
+            <h2 className="text-xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
+              Create New Project
+            </h2>
         
             {error && (
-              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+              <div 
+                className="border px-4 py-3 rounded mb-4"
+                style={{ 
+                  backgroundColor: 'var(--error-bg, #fef2f2)', 
+                  borderColor: 'var(--error-border, #fca5a5)',
+                  color: 'var(--error-text, #dc2626)'
+                }}
+              >
                 {error}
               </div>
             )}
         
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
-                <label className="block text-sm font-medium mb-1 text-gray-700">
+                <label 
+                  className="block text-sm font-medium mb-1" 
+                  style={{ color: 'var(--text-primary)' }}
+                >
                   Project Name *
                 </label>
                 <input
@@ -459,15 +534,27 @@ const ProjectsComponent: React.FC = () => {
                   name="name"
                   value={projectData.name}
                   onChange={handleInputChange}
-                  className="w-full p-2 border-2 border-gray-300 rounded focus:border-sb-amber focus:outline-none text-gray-800"
-                  placeholder="Enter project name"
+                  className="w-full p-2 border-2 rounded focus:border-sb-amber focus:outline-none transition-colors"
+                  style={{ 
+                    backgroundColor: 'var(--bg-secondary)', 
+                    borderColor: 'var(--border-color, #374151)',
+                    color: 'var(--text-primary)'
+                  }}
+                  placeholder="my-awesome-project"
                   required
                   disabled={createLoading}
+                  maxLength={32}
                 />
+                <div className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>
+                  {projectData.name.length}/32 characters • Only letters, numbers, underscores (_), and hyphens (-) allowed
+                </div>
               </div>
           
               <div className="mb-4">
-                <label className="block text-sm font-medium mb-1 text-gray-700">
+                <label 
+                  className="block text-sm font-medium mb-1" 
+                  style={{ color: 'var(--text-primary)' }}
+                >
                   Add Collaborator (Email)
                 </label>
                 <input
@@ -475,14 +562,22 @@ const ProjectsComponent: React.FC = () => {
                   name="collaborators"
                   value={projectData.collaborators}
                   onChange={handleInputChange}
-                  className="w-full p-2 border-2 border-gray-300 rounded focus:border-sb-amber focus:outline-none text-gray-800"
+                  className="w-full p-2 border-2 rounded focus:border-sb-amber focus:outline-none transition-colors"
+                  style={{ 
+                    backgroundColor: 'var(--bg-secondary)', 
+                    borderColor: 'var(--border-color, #374151)',
+                    color: 'var(--text-primary)'
+                  }}
                   placeholder="colleague@example.com (optional)"
                   disabled={createLoading}
                 />
               </div>
           
               <div className="mb-6">
-                <label className="block text-sm font-medium mb-1 text-gray-700">
+                <label 
+                  className="block text-sm font-medium mb-1" 
+                  style={{ color: 'var(--text-primary)' }}
+                >
                   Project Password
                 </label>
                 <input
@@ -490,7 +585,12 @@ const ProjectsComponent: React.FC = () => {
                   name="password"
                   value={projectData.password}
                   onChange={handleInputChange}
-                  className="w-full p-2 border-2 border-gray-300 rounded focus:border-sb-amber focus:outline-none text-gray-800"
+                  className="w-full p-2 border-2 rounded focus:border-sb-amber focus:outline-none transition-colors"
+                  style={{ 
+                    backgroundColor: 'var(--bg-secondary)', 
+                    borderColor: 'var(--border-color, #374151)',
+                    color: 'var(--text-primary)'
+                  }}
                   placeholder="Enter password for project (optional)"
                   disabled={createLoading}
                 />
@@ -504,7 +604,12 @@ const ProjectsComponent: React.FC = () => {
                     setError(null);
                     setProjectData({ name: '', collaborators: '', password: '' });
                   }}
-                  className="px-4 py-2 border-2 border-gray-400 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 hover:border-gray-500 transition-all duration-200"
+                  className="px-4 py-2 border-2 rounded-xl transition-all duration-200 hover:opacity-80"
+                  style={{ 
+                    backgroundColor: 'var(--bg-secondary)', 
+                    borderColor: 'var(--border-color, #374151)',
+                    color: 'var(--text-secondary)'
+                  }}
                   disabled={createLoading}
                 >
                   Cancel
@@ -512,7 +617,7 @@ const ProjectsComponent: React.FC = () => {
                 <button
                   type="submit"
                   className="px-6 py-2 bg-sb-amber hover:bg-sb-amber-dark text-white rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={createLoading || !projectData.name.trim()}
+                  disabled={createLoading || !projectData.name.trim() || validateProjectName(projectData.name) !== null}
                 >
                   {createLoading ? 'Creating...' : 'Create Project'}
                 </button>
