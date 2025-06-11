@@ -94,7 +94,6 @@ const ProjectsComponent: React.FC = () => {
           });
           setProjects(projectsArray);
         } else {
-          console.log('No projects array found in response');
           setProjects([]);
         }
       } catch (parseError) {
