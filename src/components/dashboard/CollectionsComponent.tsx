@@ -64,7 +64,7 @@ const CollectionsComponent: React.FC = () => {
       }
 
 
-      const response = await fetch(`/api/v1/projects/${encodeURIComponent(projectName!)}/collections`, {
+      const response = await fetch(`http://localhost:8042/api/v1/projects/${encodeURIComponent(projectName!)}/collections`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -142,7 +142,7 @@ const CollectionsComponent: React.FC = () => {
       }
 
     
-      const response = await fetch(`/api/v1/projects/${encodeURIComponent(projectName!)}/collections/${encodeURIComponent(collectionData.name)}`, {
+      const response = await fetch(`http://localhost:8042/api/v1/projects/${encodeURIComponent(projectName!)}/collections/${encodeURIComponent(collectionData.name)}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
