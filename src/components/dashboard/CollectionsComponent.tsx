@@ -11,11 +11,10 @@
  * =================================================
  **/
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useKindeAuth } from '@kinde-oss/kinde-auth-react';
-import { ArrowLeft, Database, Plus } from 'lucide-react';
-
+import { ArrowLeft, Database, Plus, Filter, ChevronDown } from 'lucide-react';
 
 interface Collection {
   name: string;
@@ -25,6 +24,34 @@ interface Collection {
   description?: string;
   encryption: boolean;
 }
+
+type SortOption = 'alphabetical' | 'size' | 'dateCreated' | 'dateModified';
+
+// Utility function to format ISO date string to readable format
+const formatDate = (dateString: string): string => {
+  if (!dateString || dateString === 'Unknown' || dateString === 'Recently') {
+    return dateString;
+  }
+
+  try {
+    const date = new Date(dateString);
+    
+    // Check if date is valid
+    if (isNaN(date.getTime())) {
+      return dateString; // Return original if invalid
+    }
+
+    // Format as M/D/YYYY
+    const month = date.getMonth() + 1; // getMonth() returns 0-11
+    const day = date.getDate();
+    const year = date.getFullYear();
+    
+    return `${month}/${day}/${year}`;
+  } catch (error) {
+    console.warn('Error formatting date:', error);
+    return dateString; // Return original if error
+  }
+};
 
 const CollectionsComponent: React.FC = () => {
   const navigate = useNavigate();
@@ -36,11 +63,60 @@ const CollectionsComponent: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [createLoading, setCreateLoading] = useState(false);
+  const [sortBy, setSortBy] = useState<SortOption>('alphabetical');
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [collectionData, setCollectionData] = useState<Collection>({
     name: '',
     description: '',
     encryption: true
   });
+
+  const sortOptions = [
+    { value: 'alphabetical', label: 'Alphabetical (A-Z)' },
+    { value: 'size', label: 'Size' },
+    { value: 'dateCreated', label: 'Date Created' },
+    { value: 'dateModified', label: 'Last Modified' }
+  ];
+
+  // Memoized sorted collections
+  const sortedCollections = useMemo(() => {
+    if (!collections.length) return collections;
+
+    const sorted = [...collections].sort((a, b) => {
+      switch (sortBy) {
+        case 'alphabetical':
+          return a.name.localeCompare(b.name);
+        
+        case 'size':
+          // Extract numeric value from size string for comparison
+          const getSizeValue = (sizeStr: string) => {
+            if (!sizeStr || sizeStr === 'Unknown' || sizeStr === 'Calculating...') return 0;
+            const match = sizeStr.match(/(\d+)/);
+            return match ? parseInt(match[1]) : 0;
+          };
+          return getSizeValue(b.size || '') - getSizeValue(a.size || '');
+        
+        case 'dateCreated':
+          const getCreatedDate = (dateStr: string) => {
+            if (!dateStr || dateStr === 'Unknown') return new Date(0);
+            return new Date(dateStr);
+          };
+          return getCreatedDate(b.createdAt || '').getTime() - getCreatedDate(a.createdAt || '').getTime();
+        
+        case 'dateModified':
+          const getModifiedDate = (dateStr: string) => {
+            if (!dateStr || dateStr === 'Unknown' || dateStr === 'Recently') return new Date();
+            return new Date(dateStr);
+          };
+          return getModifiedDate(b.lastModified || '').getTime() - getModifiedDate(a.lastModified || '').getTime();
+        
+        default:
+          return 0;
+      }
+    });
+
+    return sorted;
+  }, [collections, sortBy]);
 
   useEffect(() => {
     if (isAuthenticated && user && projectName) {
@@ -84,7 +160,7 @@ const CollectionsComponent: React.FC = () => {
               
               return {
                 name: item,
-                description: 'Database collection',
+                description: 'Collection',
                 lastModified: 'Recently',
                 createdAt: 'Unknown',
                 size: 'Unknown',
@@ -94,7 +170,7 @@ const CollectionsComponent: React.FC = () => {
               
               return {
                 name: item.name,
-                description: 'Database collection',
+                description: 'Collection',
                 lastModified: item.lastModified || 'Unknown',
                 createdAt: item.createdAt || 'Unknown',
                 size: item.size || 'Unknown',
@@ -195,6 +271,11 @@ const CollectionsComponent: React.FC = () => {
     navigate('/dashboard');
   };
 
+  const handleSortChange = (newSort: SortOption) => {
+    setSortBy(newSort);
+    setIsFilterOpen(false);
+  };
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center mt-40">
@@ -244,10 +325,47 @@ const CollectionsComponent: React.FC = () => {
         </p>
       </div>
 
-      {/* Collections Grid */}
+      {/* Filter/Sort Section */}
       {collections.length > 0 && (
+        <div className="w-full max-w-4xl flex justify-end mb-4">
+          <div className="relative">
+            <button
+              onClick={() => setIsFilterOpen(!isFilterOpen)}
+              className="flex items-center gap-2 px-4 py-2 border-2 border-gray-400 rounded-lg hover:border-sb-amber transition-colors"
+              style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
+            >
+              <Filter size={16} />
+              <span>Sort by: {sortOptions.find(option => option.value === sortBy)?.label}</span>
+              <ChevronDown size={16} className={`transition-transform ${isFilterOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {isFilterOpen && (
+              <div 
+                className="absolute right-0 mt-2 w-56 border-2 border-gray-400 rounded-lg shadow-lg z-10"
+                style={{ backgroundColor: 'var(--bg-secondary)' }}
+              >
+                {sortOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    onClick={() => handleSortChange(option.value as SortOption)}
+                    className={`w-full text-left px-4 py-3 hover:bg-sb-amber hover:text-black transition-colors first:rounded-t-md last:rounded-b-md ${
+                      sortBy === option.value ? 'bg-sb-amber text-black' : ''
+                    }`}
+                    style={{ color: sortBy === option.value ? 'black' : 'var(--text-primary)' }}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Collections Grid */}
+      {sortedCollections.length > 0 && (
         <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {collections.map((collection, index) => (
+          {sortedCollections.map((collection, index) => (
             <div
               key={`collection-${index}-${collection.name}`}
               onClick={() => handleCollectionClick(collection.name)}
@@ -271,8 +389,8 @@ const CollectionsComponent: React.FC = () => {
               )}
               
               <div className="space-y-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
-                <p>📅 Created: {collection.createdAt !== 'Unknown' && collection.createdAt !== '' ? collection.createdAt : 'Unknown'}</p>
-                <p>🕒 Last modified: {collection.lastModified !== 'Unknown' && collection.lastModified !== '' ? collection.lastModified : 'Recently'}</p>
+                <p>📅 Created: {formatDate(collection.createdAt || 'Unknown')}</p>
+                <p>🕒 Last modified: {formatDate(collection.lastModified || 'Recently')}</p>
                 <p>📁 Size: {collection.size !== 'Unknown' && collection.size !== '' ? collection.size : 'Calculating...'}</p>
                 <p>🔒 Encrypted: Yes</p>
               </div>
@@ -391,6 +509,14 @@ const CollectionsComponent: React.FC = () => {
             </form>
           </div>
         </div>
+      )}
+
+      {/* Click outside to close filter dropdown */}
+      {isFilterOpen && (
+        <div 
+          className="fixed inset-0 z-5" 
+          onClick={() => setIsFilterOpen(false)}
+        />
       )}
     </div>
   );

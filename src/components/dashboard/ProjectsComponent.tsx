@@ -13,19 +13,35 @@
 //  * =================================================
 //  **/
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useKindeAuth } from '@kinde-oss/kinde-auth-react';
+import { Filter, ChevronDown, FolderOpen } from 'lucide-react';
 
 interface Project {
   name: string;
+  projectID?: string;
+  userID?: string;
+  createdAt?: string;
+  version?: string;
+  collectionCount?: number;
+  lastModified?: string;
+  size?: string;
 }
+
 interface ProjectData {
   name: string;
   collaborators: string; // Not yet implemented in the backend, just a placeholder for now
   password: string; // Not yet implemented in the backend, just a placeholder for now
 }
 
+interface Collection {
+  name: string;
+  lastModified?: string;
+  size?: string;
+}
+
+type SortOption = 'alphabetical' | 'size' | 'dateModified' | 'collectionCount';
 
 const ProjectsComponent: React.FC = () => {
   const navigate = useNavigate();
@@ -35,16 +51,145 @@ const ProjectsComponent: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [createLoading, setCreateLoading] = useState(false);
+  const [sortBy, setSortBy] = useState<SortOption>('alphabetical');
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [projectData, setProjectData] = useState<ProjectData>({
     name: '',
     collaborators: '',
     password: ''
   });
+
+  const sortOptions = [
+    { value: 'alphabetical', label: 'Alphabetical (A-Z)' },
+    { value: 'collectionCount', label: 'Number of Collections' },
+    { value: 'size', label: 'Project Size' },
+    { value: 'dateModified', label: 'Last Modified' }
+  ];
+
+  // Memoized sorted projects
+  const sortedProjects = useMemo(() => {
+    if (!projects.length) return projects;
+
+    const sorted = [...projects].sort((a, b) => {
+      switch (sortBy) {
+        case 'alphabetical':
+          return a.name.localeCompare(b.name);
+        
+        case 'collectionCount':
+          return (b.collectionCount || 0) - (a.collectionCount || 0);
+        
+        case 'size':
+          // Extract numeric value from size string for comparison
+          const getSizeValue = (sizeStr: string) => {
+            if (!sizeStr || sizeStr === 'Unknown' || sizeStr === 'Calculating...') return 0;
+            const match = sizeStr.match(/(\d+)/);
+            return match ? parseInt(match[1]) : 0;
+          };
+          return getSizeValue(b.size || '') - getSizeValue(a.size || '');
+        
+        case 'dateModified':
+          const getModifiedDate = (dateStr: string) => {
+            if (!dateStr || dateStr === 'Unknown' || dateStr === 'Recently') return new Date();
+            return new Date(dateStr);
+          };
+          return getModifiedDate(b.lastModified || '').getTime() - getModifiedDate(a.lastModified || '').getTime();
+        
+        default:
+          return 0;
+      }
+    });
+
+    return sorted;
+  }, [projects, sortBy]);
+
   useEffect(() => {
     if (isAuthenticated && user) {
       fetchProjects();
     }
   }, [isAuthenticated, user]);
+
+  const fetchProjectMetadata = async (projectName: string, token: string) => {
+    try {
+      // Fetch collections for this project
+      const collectionsResponse = await fetch(
+        `http://localhost:8042/api/v1/projects/${encodeURIComponent(projectName)}/collections`,
+        {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+        }
+      );
+
+      if (!collectionsResponse.ok) {
+        console.warn(`Failed to fetch collections for project ${projectName}`);
+        return {
+          collectionCount: 0,
+          lastModified: 'Unknown',
+          size: 'Unknown'
+        };
+      }
+
+      const collectionsData = await collectionsResponse.text();
+      let collections: Collection[] = [];
+      let totalSize = 0;
+      let latestModified = new Date(0);
+
+      try {
+        const jsonData = JSON.parse(collectionsData);
+        if (jsonData.collections && Array.isArray(jsonData.collections)) {
+          collections = jsonData.collections.map((item: string | Collection) => {
+            if (typeof item === 'string') {
+              return {
+                name: item,
+                lastModified: 'Unknown',
+                size: 'Unknown'
+              };
+            }
+            return item;
+          });
+
+          // Calculate total size and latest modification
+          collections.forEach(collection => {
+            // Parse size
+            if (collection.size && collection.size !== 'Unknown') {
+              const sizeMatch = collection.size.match(/(\d+)/);
+              if (sizeMatch) {
+                totalSize += parseInt(sizeMatch[1]);
+              }
+            }
+
+            // Find latest modification
+            if (collection.lastModified && collection.lastModified !== 'Unknown') {
+              const modDate = new Date(collection.lastModified);
+              if (modDate > latestModified) {
+                latestModified = modDate;
+              }
+            }
+          });
+        }
+      } catch (parseError) {
+        console.warn(`Failed to parse collections for project ${projectName}`);
+      }
+
+      return {
+        collectionCount: collections.length,
+        lastModified: latestModified.getTime() > 0 ? latestModified.toLocaleDateString() : 'Recently',
+        size: totalSize > 0 ? `${totalSize} MB` : 'Empty'
+      };
+
+    } catch (error) {
+      console.warn(`Error fetching metadata for project ${projectName}:`, error);
+      return {
+        collectionCount: 0,
+        lastModified: 'Unknown',
+        size: 'Unknown'
+      };
+    }
+  };
+
   const fetchProjects = async () => {
     try {
       setLoading(true);
@@ -54,9 +199,7 @@ const ProjectsComponent: React.FC = () => {
         throw new Error('No authentication token available');
       }
 
-      //Get a lists of all the projects available to the logged in user
-
-      //TODO: This endpoint is temporary and will be replaced with the actual projects endpoint when available
+      // Get list of all projects
       const response = await fetch('http://localhost:8042/api/v1/projects', {
         method: 'GET',
         headers: {
@@ -66,39 +209,35 @@ const ProjectsComponent: React.FC = () => {
         },
       });
 
-      // const response = await fetch('/api/v1/projects', {
-      //   method: 'GET',
-      //   headers: {
-      //     'Authorization': `Bearer ${token}`,
-      //     'Content-Type': 'application/json',
-      //     'Accept': 'application/json',
-      //   },
-      // });
-
       if (!response.ok) {
         throw new Error(`Failed to fetch projects: ${response.status}`);
       }
 
       const data = await response.text();
 
-  
-      //The projects endpoint returns a JSON object of arrays so need to parse them
-      //to properly each project on the frontend
       try {
         const jsonData = JSON.parse(data);
        
         if (jsonData.projects && Array.isArray(jsonData.projects)) {
-          const projectsArray = jsonData.projects.map((name: string) => {
- 
-            return { name };
-          });
-          setProjects(projectsArray);
+          // Fetch metadata for each project in parallel
+          const projectsWithMetadata = await Promise.all(
+            jsonData.projects.map(async (name: string) => {
+              const metadata = await fetchProjectMetadata(name, token);
+              return {
+                name,
+                ...metadata
+              };
+            })
+          );
+          
+          setProjects(projectsWithMetadata);
         } else {
           setProjects([]);
         }
       } catch (parseError) {
         console.error('JSON Parse Error:', parseError);
         console.error('Failed to parse response:', data);
+        setProjects([]);
       }
     } catch (err) {
       console.error('Error fetching projects:', err);
@@ -107,6 +246,7 @@ const ProjectsComponent: React.FC = () => {
       setLoading(false);
     }
   };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setProjectData(prev => ({
@@ -114,6 +254,7 @@ const ProjectsComponent: React.FC = () => {
       [name]: value
     }));
   };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!projectData.name.trim()) {
@@ -130,8 +271,6 @@ const ProjectsComponent: React.FC = () => {
         throw new Error('No authentication token available');
       }
 
-      // Create the project by making a POST request to the backend. 
-      // TODO: This endpoint is temporary and will be replaced with the actual projects endpoint when available
       const response = await fetch(`http://localhost:8042/api/v1/projects/${encodeURIComponent(projectData.name)}`, {
         method: 'POST',
         headers: {
@@ -158,19 +297,27 @@ const ProjectsComponent: React.FC = () => {
       setCreateLoading(false);
     }
   };
-    const handleProjectClick = (projectName: string) => {
+
+  const handleProjectClick = (projectName: string) => {
     navigate(`/dashboard/projects/${encodeURIComponent(projectName)}/collections`);
   };
+
+  const handleSortChange = (newSort: SortOption) => {
+    setSortBy(newSort);
+    setIsFilterOpen(false);
+  };
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center mt-40">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-sb-amber"></div>
         <p className="mt-4 text-lg" style={{ color: 'var(--text-secondary)' }}>
-          Loading { user?.givenName}'s' projects...
+          Loading {user?.givenName}'s projects...
         </p>
       </div>
     );
   }
+
   return (
     <div className="flex flex-col items-center gap-6 mt-40">
       {error && (
@@ -199,10 +346,47 @@ const ProjectsComponent: React.FC = () => {
         </p>
       </div>
 
-      {/* Projects Grid */}
+      {/* Filter/Sort Section */}
       {projects.length > 0 && (
+        <div className="w-full max-w-4xl flex justify-end mb-4">
+          <div className="relative">
+            <button
+              onClick={() => setIsFilterOpen(!isFilterOpen)}
+              className="flex items-center gap-2 px-4 py-2 border-2 border-gray-400 rounded-lg hover:border-sb-amber transition-colors"
+              style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
+            >
+              <Filter size={16} />
+              <span>Sort by: {sortOptions.find(option => option.value === sortBy)?.label}</span>
+              <ChevronDown size={16} className={`transition-transform ${isFilterOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {isFilterOpen && (
+              <div 
+                className="absolute right-0 mt-2 w-56 border-2 border-gray-400 rounded-lg shadow-lg z-10"
+                style={{ backgroundColor: 'var(--bg-secondary)' }}
+              >
+                {sortOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    onClick={() => handleSortChange(option.value as SortOption)}
+                    className={`w-full text-left px-4 py-3 hover:bg-sb-amber hover:text-black transition-colors first:rounded-t-md last:rounded-b-md ${
+                      sortBy === option.value ? 'bg-sb-amber text-black' : ''
+                    }`}
+                    style={{ color: sortBy === option.value ? 'black' : 'var(--text-primary)' }}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Projects Grid */}
+      {sortedProjects.length > 0 && (
         <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.map((project, index) => (
+          {sortedProjects.map((project, index) => (
             <div
               key={`project-${index}-${project.name}`}
               onClick={() => handleProjectClick(project.name)}
@@ -210,21 +394,27 @@ const ProjectsComponent: React.FC = () => {
               style={{ backgroundColor: 'var(--bg-secondary)' }}
             >
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-semibold" style={{ color: 'var(--text-primary)' }}>
-                  {project.name || 'Unnamed Project'} {/* Fallback for empty names */}
-                </h3>
+                <div className="flex items-center gap-3">
+                  <FolderOpen size={24} className="text-sb-amber" />
+                  <h3 className="text-xl font-semibold" style={{ color: 'var(--text-primary)' }}>
+                    {project.name || 'Unnamed Project'}
+                  </h3>
+                </div>
                 <div className="w-3 h-3 bg-green-500 rounded-full" title="Active"></div>
               </div>          
+              
               <div className="space-y-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
-                <p>📁 Collections: Loading...</p>
-                <p>🕒 Last modified: Recently</p>
+                <p>📁 Collections: {project.collectionCount !== undefined ? project.collectionCount : 'Loading...'}</p>
+                <p>🕒 Last modified: {project.lastModified || 'Recently'}</p>
+                <p>📊 Size: {project.size || 'Calculating...'}</p>
               </div>
             </div>
           ))}
         </div>
       )}
-          {/* Create Project Button */}
-          <div className="w-full max-w-4xl">
+
+      {/* Create Project Button */}
+      <div className="w-full max-w-4xl">
         <button
           onClick={() => setIsModalOpen(true)}
           className="w-full border-2 border-dashed border-gray-400 text-lg px-8 py-6 rounded-lg hover:bg-sb-amber hover:border-sb-amber hover:shadow-lg hover:-translate-y-1 hover:text-black transition-all duration-300 cursor-pointer transform"
@@ -234,7 +424,7 @@ const ProjectsComponent: React.FC = () => {
         </button>
       </div>
 
-      {/* In the event that there are not projects available to the user, display a placeholder message to encourage them to create their first project. This goes goes away after making a proj */}
+      {/* Empty State */}
       {projects.length === 0 && !loading && !error && (
         <div className="w-full max-w-2xl text-center py-12">
           <div className="text-6xl mb-4">🗂️</div>
@@ -330,6 +520,14 @@ const ProjectsComponent: React.FC = () => {
             </form>
           </div>
         </div>
+      )}
+
+      {/* Click outside to close filter dropdown */}
+      {isFilterOpen && (
+        <div 
+          className="fixed inset-0 z-5" 
+          onClick={() => setIsFilterOpen(false)}
+        />
       )}
     </div>
   );
