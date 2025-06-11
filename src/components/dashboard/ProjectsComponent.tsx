@@ -142,15 +142,6 @@ const ProjectsComponent: React.FC = () => {
         },
       });
 
-      // const response = await fetch(`/api/v1/projects/${encodeURIComponent(projectData.name)}`,{
-      //   method: 'POST',
-      //   headers: {
-      //     'Authorization': `Bearer ${token}`,
-      //     'Content-Type': 'application/json',
-      //     'Accept': 'application/json',
-      //   },
-      // });
-
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(`Failed to create project: ${errorText}`);
