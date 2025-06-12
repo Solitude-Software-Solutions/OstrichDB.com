@@ -80,7 +80,7 @@ GET .../records?minValue=1000&maxValue=3000`,
     {
       id: 1,
       title: "🗣️ Natural Language Query",
-      description: "Ask questions in plain English",
+      description: "To Write Natural Language Queries, see pricing...",
       component: "nlq-editor"
     },
     {
@@ -137,6 +137,9 @@ GET .../records?minValue=1000&maxValue=3000`,
             • "Delete all test data from the staging cluster"
           </div>
         </div>
+        <button className="mt-3 bg-sb-amber hover:bg-sb-amber-dark text-white rounded px-4 py-2 text-sm font-medium transition-colors">
+          See Pricing
+        </button>
       </div>
     </div>
   );
