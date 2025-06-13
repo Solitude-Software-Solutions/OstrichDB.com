@@ -1,20 +1,24 @@
-/**
- * =================================================
- * Author: Kasi Reeves
- * GitHub: @Kasirocswell
- * Contributors:
- *           @SchoolyB
- *           @GaleSSalazar
- *
- * License: Apache License 2.0 (see LICENSE file for details)
- * Copyright (c) 2025-Present Archetype Dynamics, Inc.
- * File Description:
- *    Contains the CTA component with fade up + scale animation.
- * =================================================
- **/
+// /**
+//  * =================================================
+//  * Author: Kasi Reeves
+//  * GitHub: @Kasirocswell
+//  * Contributors:
+//  *           @SchoolyB
+//  *           @GaleSSalazar
+//  *
+//  * License: Apache License 2.0 (see LICENSE file for details)
+//  * Copyright (c) 2025-Present Archetype Dynamics, Inc.
+//  * File Description:
+//  *    Contains the CTA component with fade up + scale animation.
+//  * =================================================
+//  **/
+
 
 import React from "react";
 import { ArrowRight } from "lucide-react";
+import { useKindeAuth } from "@kinde-oss/kinde-auth-react";
+import { RegisterLink } from "@kinde-oss/kinde-auth-react/components";
+import { useNavigate } from "react-router-dom";
 import { useScrollAnimation, getAnimationClasses } from "../../utils/hooks/useScrollAnimation";
 
 const CTA: React.FC = () => {
@@ -23,9 +27,19 @@ const CTA: React.FC = () => {
     rootMargin: '0px 0px -50px 0px'
   });
 
+  const { isAuthenticated, isLoading } = useKindeAuth();
+  const navigate = useNavigate();
+
+  const handleGetStarted = () => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
+    }
+//If not authenticated, the RegisterLink component will handle the redirection
+  };
+
   return (
     <section 
-      ref={elementRef}
+      ref={elementRef} // Dev Note: If your IDE is screaming about this line, dont worry about it, leave as is - Marshall
       className="py-16 md:py-20 lg:py-24 xl:py-28 relative overflow-hidden">
 
       <div className="container relative">
@@ -52,9 +66,19 @@ const CTA: React.FC = () => {
           <div className={`flex flex-col sm:flex-row justify-center gap-4 ${
             getAnimationClasses(isVisible, 'fadeUpScale', 200)
           }`}>
-            <a href="#" className="btn btn-primary py-3 px-8 text-base">
-              Get Started Now
-            </a>
+            {isAuthenticated ? (
+              <button 
+                onClick={handleGetStarted}
+                disabled={isLoading}
+                className="btn btn-primary py-3 px-8 text-base disabled:opacity-50"
+              >
+                {isLoading ? 'Loading...' : 'Get Started Now'}
+              </button>
+            ) : (
+              <RegisterLink className="btn btn-primary py-3 px-8 text-base">
+                Get Started Now
+              </RegisterLink>
+            )}
             <a href="#" className="btn btn-outline py-3 px-8 text-base group">
               <span>Talk to Sales</span>
               <ArrowRight

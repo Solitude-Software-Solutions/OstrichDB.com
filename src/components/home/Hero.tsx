@@ -1,19 +1,22 @@
-/**
- * =================================================
- * Author: Kasi Reeves
- * GitHub: @Kasirocswell
- * Contributors:
- *           @SchoolyB
- *           @GaleSSalazar
- *
- * License: Apache License 2.0 (see LICENSE file for details)
- * Copyright (c) 2025-Present Archetype Dynamics, Inc.
- * File Description:
- *    Contains the Hero component with fade up + scale animation.
- * =================================================
- **/
+// /**
+//  * =================================================
+//  * Author: Kasi Reeves
+//  * GitHub: @Kasirocswell
+//  * Contributors:
+//  *           @SchoolyB
+//  *           @GaleSSalazar
+//  *
+//  * License: Apache License 2.0 (see LICENSE file for details)
+//  * Copyright (c) 2025-Present Archetype Dynamics, Inc.
+//  * File Description:
+//  *    Contains the Hero component
+//  * =================================================
+//  **/
 
 import { ArrowRight } from "lucide-react";
+import { useKindeAuth } from "@kinde-oss/kinde-auth-react";
+import { RegisterLink } from "@kinde-oss/kinde-auth-react/components";
+import { useNavigate } from "react-router-dom";
 import { useScrollAnimation, getAnimationClasses } from "../../utils/hooks/useScrollAnimation";
 
 const Hero: React.FC = () => {
@@ -22,11 +25,21 @@ const Hero: React.FC = () => {
     rootMargin: '0px'
   });
 
+  const { isAuthenticated, isLoading } = useKindeAuth();
+  const navigate = useNavigate();
+
+  const handleStartBuilding = () => {
+    if (isAuthenticated) {
+      // Redirect authenticated users to projects page
+      navigate('/dashboard');
+    }
+    // For unauthenticated users, we'll use RegisterLink component instead
+  };
+
   return (
     <div 
-      ref={elementRef}
+      ref={elementRef} //Dev Note: If your IDE is screaming about this line, dont worry about it, leave as is - Marshall
       className="relative min-h-screen pt-24 pb-12 md:pb-16 lg:pb-20 hero-gradient"
-      
     >
       <div className="container pb-20 pt-16">
         <div className="max-w-3xl mx-auto text-center mb-12">
@@ -52,9 +65,19 @@ const Hero: React.FC = () => {
           <div className={`flex flex-col sm:flex-row justify-center gap-4 ${
             getAnimationClasses(isVisible, 'fadeUpScale', 200)
           }`}>
-            <a href="#" className="btn btn-primary py-3 px-6 text-base">
-              Start Building Free
-            </a>
+            {isAuthenticated ? (
+              <button 
+                onClick={handleStartBuilding}
+                disabled={isLoading}
+                className="btn btn-primary py-3 px-6 text-base disabled:opacity-50"
+              >
+                {isLoading ? 'Loading...' : 'Start Building Free'}
+              </button>
+            ) : (
+              <RegisterLink className="btn btn-primary py-3 px-6 text-base">
+                Start Building Free
+              </RegisterLink>
+            )}
             <a href="#" className="btn btn-outline py-3 px-6 text-base group">
               <span>View Docs</span>
               <ArrowRight
