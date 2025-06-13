@@ -10,7 +10,7 @@
  * License: Apache License 2.0 (see LICENSE file for details)
  * Copyright (c) 2025-Present Archetype Dynamics, Inc.
  * File Description:
- *    Main application component that assembles the page layout.
+ *    Main application component
  * =================================================
  **/
 
@@ -22,7 +22,7 @@ import "@mantine/core/styles.css";
 
 import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
-import DashboardNavbar from "./components/layout/DashboardNavbar"; // Import the sidebar
+import DashboardNavbar from "./components/layout/DashboardNavbar";
 import Hero from "./components/home/Hero";
 import CTA from "./components/home/CTA";
 import Features from "./components/home/Features";
@@ -30,6 +30,8 @@ import CodeShowcase from "./components/home/InteractiveShowcase";
 import CodeComparison from "./components/home/ProblemSolution";
 import Dashboard from "./pages/dashboard";
 import CollectionsComponent from "./components/dashboard/CollectionsComponent";
+import CollectionOverview from "./components/dashboard/CollectionOverview";
+import ClusterEditor from "./components/dashboard/ClusterEditor";
 import NotFound from './components/NotFound';
 import { ThemeProvider } from "./context/ThemeContext";
 
@@ -74,15 +76,15 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
     <Navbar />
     <div className="flex flex-1">
       <DashboardNavbar />
-      <main className="flex-1">
+      <main className="flex-1" style={{ marginLeft: '80px' }}> 
         {children}
       </main>
     </div>
   </div>
 );
 
-// Placeholder component for future cluster management
-const ClusterManagement: React.FC = () => {
+// Placeholder components for future implementation
+const ManualQueryEditor: React.FC = () => {
   const { projectName, collectionName } = useParams<{ 
     projectName: string; 
     collectionName: string; 
@@ -92,7 +94,7 @@ const ClusterManagement: React.FC = () => {
     <div className="flex flex-col items-center justify-center mt-40">
       <div className="text-center">
         <h1 className="text-3xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
-          Cluster Management
+          Manual Query Editor
         </h1>
         <p className="text-lg mb-2" style={{ color: 'var(--text-secondary)' }}>
           Project: {projectName}
@@ -100,12 +102,42 @@ const ClusterManagement: React.FC = () => {
         <p className="text-lg mb-6" style={{ color: 'var(--text-secondary)' }}>
           Collection: {collectionName}
         </p>
-        <div className="text-6xl mb-4">🏗️</div>
+        <div className="text-6xl mb-4">💻</div>
         <p className="text-lg" style={{ color: 'var(--text-secondary)' }}>
-          Cluster management interface coming soon...
+          Manual query editor coming soon...
         </p>
         <p className="text-sm mt-4" style={{ color: 'var(--text-secondary)' }}>
-          Here you'll be able to create and manage clusters, add records, and perform queries.
+          Write and execute OstrichDB queries directly.
+        </p>
+      </div>
+    </div>
+  );
+};
+
+const NaturalLanguageQuery: React.FC = () => {
+  const { projectName, collectionName } = useParams<{ 
+    projectName: string; 
+    collectionName: string; 
+  }>();
+  
+  return (
+    <div className="flex flex-col items-center justify-center mt-40">
+      <div className="text-center">
+        <h1 className="text-3xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
+          Natural Language Query
+        </h1>
+        <p className="text-lg mb-2" style={{ color: 'var(--text-secondary)' }}>
+          Project: {projectName}
+        </p>
+        <p className="text-lg mb-6" style={{ color: 'var(--text-secondary)' }}>
+          Collection: {collectionName}
+        </p>
+        <div className="text-6xl mb-4">🗣️</div>
+        <p className="text-lg" style={{ color: 'var(--text-secondary)' }}>
+          Natural language query interface coming soon...
+        </p>
+        <p className="text-sm mt-4" style={{ color: 'var(--text-secondary)' }}>
+          Ask questions about your data in plain English.
         </p>
       </div>
     </div>
@@ -168,12 +200,40 @@ function App() {
                 } 
               />
               
-              {/* Cluster management for a specific collection */}
+              {/* Collection Overview - Default view when entering a collection */}
               <Route 
                 path="/dashboard/projects/:projectName/collections/:collectionName" 
                 element={
                   <DashboardLayout>
-                    <ClusterManagement />
+                    <CollectionOverview />
+                  </DashboardLayout>
+                } 
+              />
+              
+              {/* Collection Management Tools */}
+              <Route 
+                path="/dashboard/projects/:projectName/collections/:collectionName/cluster-editor/:clusterName?" 
+                element={
+                  <DashboardLayout>
+                    <ClusterEditor />
+                  </DashboardLayout>
+                } 
+              />
+              
+              <Route 
+                path="/dashboard/projects/:projectName/collections/:collectionName/manual-query" 
+                element={
+                  <DashboardLayout>
+                    <ManualQueryEditor />
+                  </DashboardLayout>
+                } 
+              />
+              
+              <Route 
+                path="/dashboard/projects/:projectName/collections/:collectionName/nlq" 
+                element={
+                  <DashboardLayout>
+                    <NaturalLanguageQuery />
                   </DashboardLayout>
                 } 
               />
