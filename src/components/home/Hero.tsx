@@ -25,7 +25,6 @@ const Hero: React.FC = () => {
   return (
     <div 
       ref={elementRef}
-      // className="relative min-h-screen pt-24 hero-gradient"
       className="relative min-h-screen pt-24 pb-12 md:pb-16 lg:pb-20 hero-gradient"
       
     >
