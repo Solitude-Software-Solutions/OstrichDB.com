@@ -352,7 +352,7 @@ const CollectionsComponent: React.FC = () => {
           </button>
         </div>
       )}
-
+      
       {/* Header Section */}
       <div className="text-center mb-8">
         <div className="flex items-center justify-center mb-4">
@@ -368,12 +368,15 @@ const CollectionsComponent: React.FC = () => {
         <h1 className="text-3xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
           Collections in "{projectName}"
         </h1>
-        <p className="text-lg" style={{ color: 'var(--text-secondary)' }}>
-          {collections.length === 0
-            ? "Get started by creating your first collection"
-            : `You have ${collections.length} collection${collections.length === 1 ? '' : 's'}`
-          }
-        </p>
+        {collections.length === 0 ? (
+          <p className="text-lg" style={{ color: 'var(--text-secondary)' }}>
+            Get started by creating your first Collection
+          </p>
+        ) : collections.length >= 6 ? (
+          <p className="text-lg" style={{ color: 'var(--text-secondary)' }}>
+            You have {collections.length} project{collections.length === 1 ? '' : 's'}
+          </p>
+        ) : null}
       </div>
 
       {/* Filter/Sort Section */}

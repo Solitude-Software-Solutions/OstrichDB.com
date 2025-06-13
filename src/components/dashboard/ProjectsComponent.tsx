@@ -386,17 +386,20 @@ const ProjectsComponent: React.FC = () => {
         </div>
       )}
 
-      {/* Header Section */}
+     {/* Header Section */}
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
           {user?.givenName}'s Projects
         </h1>
-        <p className="text-lg" style={{ color: 'var(--text-secondary)' }}>
-          {projects.length === 0
-            ? "Get started by creating your first project"
-            : `You have ${projects.length} project${projects.length === 1 ? '' : 's'}`
-          }
-        </p>
+        {projects.length === 0 ? (
+          <p className="text-lg" style={{ color: 'var(--text-secondary)' }}>
+            Get started by creating your first project
+          </p>
+        ) : projects.length >= 6 ? (
+          <p className="text-lg" style={{ color: 'var(--text-secondary)' }}>
+            You have {projects.length} project{projects.length === 1 ? '' : 's'}
+          </p>
+        ) : null}
       </div>
 
       {/* Filter/Sort Section */}
