@@ -7,12 +7,12 @@
  * License: Apache License 2.0 (see LICENSE file for details)
  * Copyright (c) 2025-Present Archetype Dynamics, Inc.
  * File Description:
- *    Dynamic sidebar nav component that changes based on dashboard state
+ *    Dynamic sidebar nav component with collection management tools
  * =================================================
  **/
 
 import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { useKindeAuth } from '@kinde-oss/kinde-auth-react';
 import {
   IconHome2,
@@ -20,6 +20,9 @@ import {
   IconBook,
   IconUsers,
   IconLogout,
+  IconBraces,
+  IconCode,
+  IconMessage,
 } from '@tabler/icons-react';
 import { Center, Stack, Tooltip, UnstyledButton } from '@mantine/core';
 import classes from './DashboardNavbar.module.css';
@@ -59,100 +62,175 @@ export function DashboardNavbar() {
   const location = useLocation();
   const { logout } = useKindeAuth();
   
+  // Get URL parameters for collection management
+  const { projectName, collectionName } = useParams<{
+    projectName: string;
+    collectionName: string;
+  }>();
+
   // Determine current dashboard state based on URL
   const getDashboardState = () => {
     const path = location.pathname;
+    
+    // Check if we're in collection management (any of the 4 views)
+    if (path.includes('/collections/') && collectionName) {
+      return 'collection-management';
+    }
+    
     if (path.includes('/collections')) {
       return 'collections';
     }
+    
     return 'projects';
   };
 
-  // Get current project name from URL if in collections view
-  const getCurrentProjectName = () => {
+  // Get current collection management tool
+  const getCurrentCollectionTool = () => {
     const path = location.pathname;
-    const match = path.match(/\/projects\/([^\/]+)\/collections/);
-    return match ? decodeURIComponent(match[1]) : null;
+    if (path.endsWith('/cluster-editor')) return 'cluster-editor';
+    if (path.endsWith('/manual-query')) return 'manual-query';
+    if (path.endsWith('/nlq')) return 'nlq';
+    return 'overview'; // Default to overview
   };
 
   const [active, setActive] = useState(0);
   const dashboardState = getDashboardState();
-  const currentProject = getCurrentProjectName();
+  const currentTool = getCurrentCollectionTool();
 
   // Update active state when location changes
   useEffect(() => {
     const path = location.pathname;
+    
     if (path === '/') {
       setActive(0);
     } else if (dashboardState === 'projects') {
-      // In projects view, check specific routes
+      // In projects view
       if (path.includes('/account')) {
         setActive(1);
       } else if (path.includes('/documentation')) {
         setActive(2);
       } else {
-        setActive(0); // Default to Home for projects view
+        setActive(0); // Default to Home
       }
     } else if (dashboardState === 'collections') {
-      // In collections view, check specific routes
+      // In collections list view
       if (path.includes('/account')) {
-        setActive(0); // Home is index 0 in collections view
+        setActive(0);
       } else if (path.includes('/collaborators')) {
-        setActive(2); // Collaborators
+        setActive(2);
       } else if (path.includes('/documentation')) {
-        setActive(3); // Documentation
+        setActive(3);
       } else {
-        setActive(0); // Default to Home for collections view
+        setActive(0); // Default to Home
+      }
+    } else if (dashboardState === 'collection-management') {
+      // In collection management views
+      if (path.includes('/account')) {
+        setActive(0);
+      } else if (path.includes('/collaborators')) {
+        setActive(2);
+      } else if (path.includes('/documentation')) {
+        setActive(6); // Adjusted for collection management tools
+      } else if (currentTool === 'cluster-editor') {
+        setActive(3);
+      } else if (currentTool === 'manual-query') {
+        setActive(4);
+      } else if (currentTool === 'nlq') {
+        setActive(5);
+      } else {
+        setActive(0); // Default to Home
       }
     }
-  }, [location.pathname, dashboardState]);
+  }, [location.pathname, dashboardState, currentTool]);
 
-  // Navigation data for Projects view
-  const projectsNavigation = [
-    { 
-      icon: IconHome2, 
-      label: 'Home',
-      onClick: () => {
-        navigate('/');
-        setActive(0);
+  // Navigation for different dashboard states
+  const getNavigation = () => {
+    const baseNavigation = [
+      { 
+        icon: IconHome2, 
+        label: 'Home',
+        onClick: () => {
+          navigate('/');
+          setActive(0);
+        }
       }
-    },
-  ];
+    ];
 
-  // Navigation data for Collections view
-  const collectionsNavigation = [
-    { 
-      icon: IconHome2, 
-      label: 'Home',
-      onClick: () => {
-        navigate('/');
-        setActive(0);
-      }
-    },
-    { 
-      icon: IconHome2, // Placeholder icon, will use custom element
-      label: `Project Status - ${currentProject}`,
-      onClick: () => {
-        // Maybe show project details or status
-        console.log('Show project status');
-        setActive(1);
-      },
-      customElement: <ProjectStatusIndicator />
-    },
-    { 
-      icon: IconUsers, 
-      label: 'Collaborators',
-      onClick: () => {
-        // Navigate to collaborators (not implemented yet)
-        console.log('Navigate to collaborators');
-        setActive(2);
-      }
-    },
-  ];
+    if (dashboardState === 'collection-management') {
+      // Collection management view - show project status + collection tools
+      return [
+        ...baseNavigation,
+        { 
+          icon: IconHome2, // Will use custom element
+          label: `Project Status - ${projectName}`,
+          onClick: () => {
+            console.log('Show project status');
+            setActive(1);
+          },
+          customElement: <ProjectStatusIndicator />
+        },
+        { 
+          icon: IconUsers, 
+          label: 'Collaborators',
+          onClick: () => {
+            console.log('Navigate to collaborators');
+            setActive(2);
+          }
+        },
+        // Collection Management Tools Section
+        { 
+          icon: IconBraces, 
+          label: 'Cluster Editor',
+          onClick: () => {
+            navigate(`/dashboard/projects/${encodeURIComponent(projectName!)}/collections/${encodeURIComponent(collectionName!)}/cluster-editor`);
+            setActive(3);
+          }
+        },
+        { 
+          icon: IconCode, 
+          label: 'Manual Query Editor',
+          onClick: () => {
+            navigate(`/dashboard/projects/${encodeURIComponent(projectName!)}/collections/${encodeURIComponent(collectionName!)}/manual-query`);
+            setActive(4);
+          }
+        },
+        { 
+          icon: IconMessage, 
+          label: 'Natural Language Query',
+          onClick: () => {
+            navigate(`/dashboard/projects/${encodeURIComponent(projectName!)}/collections/${encodeURIComponent(collectionName!)}/nlq`);
+            setActive(5);
+          }
+        }
+      ];
+    } else if (dashboardState === 'collections') {
+      // Collections list view
+      return [
+        ...baseNavigation,
+        { 
+          icon: IconHome2,
+          label: `Project Status - ${projectName}`,
+          onClick: () => {
+            console.log('Show project status');
+            setActive(1);
+          },
+          customElement: <ProjectStatusIndicator />
+        },
+        { 
+          icon: IconUsers, 
+          label: 'Collaborators',
+          onClick: () => {
+            console.log('Navigate to collaborators');
+            setActive(2);
+          }
+        }
+      ];
+    } else {
+      return baseNavigation;
+    }
+  };
 
-  // Choose navigation based on current state
-  const currentNavigation = dashboardState === 'collections' ? collectionsNavigation : projectsNavigation;
-
+  const currentNavigation = getNavigation();
   const links = currentNavigation.map((link, index) => (
     <NavbarLink
       {...link}
@@ -180,6 +258,16 @@ export function DashboardNavbar() {
       <div className={classes.navbarMain}>
         <Stack justify="center" gap={0}>
           {links}
+          
+          {/* Visual separator for collection management tools */}
+          {dashboardState === 'collection-management' && links.length > 3 && (
+            <div className="my-2">
+              <div 
+                className="w-8 h-px mx-auto"
+                style={{ backgroundColor: 'var(--border-color)' }}
+              ></div>
+            </div>
+          )}
         </Stack>
       </div>
 
