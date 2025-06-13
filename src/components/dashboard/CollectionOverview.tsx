@@ -92,6 +92,19 @@ const CollectionOverview: React.FC = () => {
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [showClusters, setShowClusters] = useState(false);
 
+  // Navigation functions
+  const navigateToProjects = () => {
+    navigate(`/dashboard/projects/${encodeURIComponent(projectName!)}/collections`);
+  };
+
+  const navigateToCollections = () => {
+    navigate(`/dashboard/projects/${encodeURIComponent(projectName!)}/collections`);
+  };
+
+  const handleRefresh = () => {
+    fetchCollectionOverview();
+  };
+
   useEffect(() => {
     if (isAuthenticated && user && projectName && collectionName) {
       fetchCollectionOverview();
@@ -245,25 +258,29 @@ const CollectionOverview: React.FC = () => {
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
       {/* Header */}
-      <div className="border-b" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
+      <div className="border-b" style={{ borderColor: 'var(--border-color)' }}>
         <div className="px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
-                onClick={() => navigate(`/dashboard/projects/${encodeURIComponent(projectName!)}/collections`)}
+                onClick={navigateToCollections}
                 className="flex items-center gap-2 text-sb-amber hover:text-sb-amber-dark transition-colors"
               >
                 <ArrowLeft size={20} />
                 Back to Collections
               </button>
               <div className="h-6 w-px" style={{ backgroundColor: 'var(--border-color)' }}></div>
-              <div>
-                <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
-                  {collectionName}
-                </h1>
-                <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                  {projectName} → {collectionName}
-                </p>
+              
+              {/* Breadcrumbs */}
+              <div className="flex items-center gap-2 text-sm">
+                <button
+                  onClick={navigateToProjects}
+                  className="text-sb-amber hover:text-sb-amber-dark transition-colors"
+                >
+                  {projectName}
+                </button>
+                <ChevronRight size={16} style={{ color: 'var(--text-secondary)' }} />
+                <span style={{ color: 'var(--text-primary)' }}>{collectionName}</span>
               </div>
             </div>
 
@@ -278,7 +295,7 @@ const CollectionOverview: React.FC = () => {
               </button>
               
               <button
-                onClick={fetchCollectionOverview}
+                onClick={handleRefresh}
                 disabled={loading}
                 className="p-2 rounded-lg border-2 border-gray-400 hover:border-sb-amber transition-colors"
                 style={{ backgroundColor: 'var(--bg-primary)' }}
@@ -570,7 +587,7 @@ const CollectionOverview: React.FC = () => {
                   </div>
                   <div className="flex items-start gap-3">
                     <div className="w-2 h-2 bg-sb-amber rounded-full mt-2 flex-shrink-0"></div>
-                    <p><strong>Use the Static Cluster Editor:</strong> Perfect for building and organizing your data structure visually, just like a spreadsheet.</p>
+                    <p><strong>Use the Cluster Editor:</strong> Perfect for building and organizing your data structure visually, just like a spreadsheet.</p>
                   </div>
                   <div className="flex items-start gap-3">
                     <div className="w-2 h-2 bg-sb-amber rounded-full mt-2 flex-shrink-0"></div>
@@ -591,14 +608,6 @@ const CollectionOverview: React.FC = () => {
                   </h3>
                 </div>
                 <div className="space-y-3 text-sm" style={{ color: 'var(--text-secondary)' }}>
-                  <div className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-green-400 rounded-full mt-2 flex-shrink-0"></div>
-                    <p><strong>Use meaningful names:</strong> Choose clear, descriptive names for your clusters and records (e.g., "user_email" instead of "email1").</p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-green-400 rounded-full mt-2 flex-shrink-0"></div>
-                    <p><strong>Choose the right data types:</strong> Use INTEGER for numbers, DATE for dates, BOOLEAN for true/false values. This helps with validation and queries.</p>
-                  </div>
                   <div className="flex items-start gap-3">
                     <div className="w-2 h-2 bg-green-400 rounded-full mt-2 flex-shrink-0"></div>
                     <p><strong>Keep clusters focused:</strong> Group related data together, but don't make clusters too large. Consider splitting if you have 50+ different record types.</p>
