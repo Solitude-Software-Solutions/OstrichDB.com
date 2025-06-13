@@ -22,7 +22,7 @@ import "@mantine/core/styles.css";
 
 import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
-import DashboardNavbar from "./components/layout/DashboardNavbar";
+import DashboardSideNavbar from "./components/layout/DashboardSideNavbar";
 import Hero from "./components/home/Hero";
 import CTA from "./components/home/CTA";
 import Features from "./components/home/Features";
@@ -33,6 +33,7 @@ import CollectionsComponent from "./components/dashboard/CollectionsComponent";
 import CollectionOverview from "./components/dashboard/CollectionOverview";
 import ClusterEditor from "./components/dashboard/ClusterEditor";
 import NotFound from './components/NotFound';
+import  DashboardTopNavbar  from "./components/layout/DashboardTopNavBar";
 import { ThemeProvider } from "./context/ThemeContext";
 
 // Kinde authentication .env variables
@@ -73,9 +74,9 @@ const theme = createTheme({
 // Dashboard Layout Component
 const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <div className="min-h-screen flex flex-col" style={{ backgroundColor: "var(--bg-primary)" }}>
-    <Navbar />
-    <div className="flex flex-1">
-      <DashboardNavbar />
+    <DashboardTopNavbar />
+    <div className="flex flex-1" style={{ paddingTop: '64px' }}> {/* Add padding for top navbar */}
+      <DashboardSideNavbar />
       <main className="flex-1" style={{ marginLeft: '80px' }}> 
         {children}
       </main>
