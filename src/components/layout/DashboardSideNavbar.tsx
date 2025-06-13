@@ -25,7 +25,7 @@ import {
   IconMessage,
 } from '@tabler/icons-react';
 import { Center, Stack, Tooltip, UnstyledButton } from '@mantine/core';
-import classes from './DashboardNavbar.module.css';
+import classes from './DashboardSideNavbar.module.css';
 
 interface NavbarLinkProps {
   icon: typeof IconHome2;
@@ -57,7 +57,7 @@ function ProjectStatusIndicator() {
   );
 }
 
-export function DashboardNavbar() {
+export function DashboardSideNavbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const { logout } = useKindeAuth();
@@ -249,8 +249,10 @@ export function DashboardNavbar() {
         {/* OstrichDB logo */}
         <div className="flex items-center justify-center w-8 h-8">
           <span className="font-bold text-lg">
+            <a href="/" >
             <span style={{ color: 'var(--logo-primary)' }}>O</span>
-            <span style={{ color: 'var(--logo-secondary)' }}>DB</span>
+              <span style={{ color: 'var(--logo-secondary)' }}>DB</span>
+            </a>
           </span>
         </div>
       </Center>
@@ -296,4 +298,4 @@ export function DashboardNavbar() {
   );
 }
 
-export default DashboardNavbar;
+export default DashboardSideNavbar;

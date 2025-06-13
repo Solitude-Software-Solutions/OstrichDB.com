@@ -1,14 +1,16 @@
 .navbar {
   width: 80px;
-  height: 100vh;
+  height: calc(100vh - 64px);
+  /* Subtract the top navbar height */
   padding: var(--mantine-spacing-md);
   display: flex;
   flex-direction: column;
   border-right: 1px solid var(--border-color);
-  background-color: var(--bg-secondary);
+  /* background-color: var(--bg-secondary); */
   position: fixed;
   left: 0;
-  top: 0;
+  top: 64px;
+  /* Start below the top navbar */
   z-index: 100;
 }
 
