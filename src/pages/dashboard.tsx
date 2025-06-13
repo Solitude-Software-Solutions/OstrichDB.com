@@ -24,7 +24,6 @@ import ProjectsComponent from '../components/dashboard/ProjectsComponent';
 import CollectionsComponent from '../components/dashboard/CollectionsComponent';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
-import DashboardNavbar from '../components/layout/DashboardNavbar';
 
 const Dashboard: React.FC = () => {
 
