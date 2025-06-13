@@ -7,30 +7,26 @@
  * License: Apache License 2.0 (see LICENSE file for details)
  * Copyright (c) 2025-Present Archetype Dynamics, Inc.
  * File Description:
- *    Full-featured cluster editor component for managing data records
- *    Similar to Supabase's table editor interface
+ *    Cluster editor component for managing data records
  * =================================================
  **/
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useKindeAuth } from '@kinde-oss/kinde-auth-react';
 import { 
   Plus, 
   Trash2, 
-  Save, 
   RefreshCw, 
   Search,
   Filter,
   ChevronDown,
   ArrowLeft,
-  Download,
-  Upload,
-  Settings,
   HelpCircle,
   AlertTriangle,
   CheckCircle,
-  X
+  X,
+  ChevronRight
 } from 'lucide-react';
 import { 
   RecordDataType, 
@@ -43,7 +39,6 @@ import {
   DATA_TYPE_DESCRIPTIONS,
   DATA_TYPE_EXAMPLES
 } from '../../utils/recordDataTypes';
-
 
 interface Record {
   id: string;
@@ -68,12 +63,13 @@ interface ClusterInfo {
 
 type SortDirection = 'asc' | 'desc';
 type SortField = 'name' | 'type' | 'value';
+type SaveStatus = 'saved' | 'saving' | 'error' | 'unsaved';
 
 const ClusterEditor: React.FC = () => {
   const { projectName, collectionName, clusterName } = useParams<{
     projectName: string;
     collectionName: string;
-    clusterName?: string; // Optional - undefined means we're in search/create mode
+    clusterName?: string;
   }>();
   
   const navigate = useNavigate();
@@ -83,7 +79,7 @@ const ClusterEditor: React.FC = () => {
   const [records, setRecords] = useState<Record[]>([]);
   const [clusterInfo, setClusterInfo] = useState<ClusterInfo | null>(null);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>('saved');
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   
@@ -100,6 +96,7 @@ const ClusterEditor: React.FC = () => {
   const [selectedRecords, setSelectedRecords] = useState<Set<string>>(new Set());
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
+  const [showRawModal, setShowRawModal] = useState(false);
 
   // Get categorized data types for the UI
   const dataTypeCategories = getDataTypesByCategory();
@@ -107,6 +104,79 @@ const ClusterEditor: React.FC = () => {
   // Determine if we're in search mode or editing a specific cluster
   const isSearchMode = !clusterName;
   const isEditMode = !!clusterName;
+
+  // Generate raw format function
+  const generateRawFormat = () => {
+    if (!clusterInfo || !records.length) return '';
+    
+    let rawContent = '{\n';
+    
+    // Add cluster metadata
+    rawContent += `\tcluster_name :identifier: ${clusterInfo.name}\n`;
+    rawContent += `\tcluster_id :identifier: ${clusterInfo.id}\n\n`;
+    
+    // Add each record
+    records.forEach((record, index) => {
+      if (record.name && record.value) {
+        rawContent += `\t${record.name} :${record.type}: ${record.value}`;
+        if (index < records.length - 1) {
+          rawContent += '\n';
+        }
+      }
+    });
+    
+    rawContent += '\n},';
+    
+    return rawContent;
+  };
+
+  // Auto-save functionality with debouncing
+  const autoSave = useCallback(async () => {
+    if (!isEditMode || saveStatus === 'saving') return;
+
+    // Validate all records first
+    const invalidRecords = records.filter(record => {
+      const validation = validateRecord(record);
+      return !validation.isValid;
+    });
+
+    if (invalidRecords.length > 0) {
+      setSaveStatus('error');
+      return;
+    }
+
+    try {
+      setSaveStatus('saving');
+      
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Mark all records as saved
+      setRecords(prev => prev.map(record => ({
+        ...record,
+        isNew: false,
+        isModified: false
+      })));
+
+      setSaveStatus('saved');
+    } catch (err) {
+      console.error('Auto-save failed:', err);
+      setSaveStatus('error');
+    }
+  }, [records, isEditMode, saveStatus]);
+
+  // Debounced auto-save effect
+  useEffect(() => {
+    const hasChanges = records.some(r => r.isNew || r.isModified);
+    if (!hasChanges) {
+      setSaveStatus('saved');
+      return;
+    }
+
+    setSaveStatus('unsaved');
+    const timeoutId = setTimeout(autoSave, 1500);
+    return () => clearTimeout(timeoutId);
+  }, [records, autoSave]);
 
   useEffect(() => {
     if (isAuthenticated && user && projectName && collectionName) {
@@ -258,6 +328,23 @@ const ClusterEditor: React.FC = () => {
     navigate(`/dashboard/projects/${encodeURIComponent(projectName!)}/collections/${encodeURIComponent(collectionName!)}/cluster-editor/${encodeURIComponent(newClusterName)}`);
   };
 
+  // Navigation functions
+  const navigateToProjects = () => {
+    navigate(`/dashboard/projects/${encodeURIComponent(projectName!)}/collections`);
+  };
+
+  const navigateToCollection = () => {
+    navigate(`/dashboard/projects/${encodeURIComponent(projectName!)}/collections/${encodeURIComponent(collectionName!)}`);
+  };
+
+  const handleRefresh = () => {
+    if (isSearchMode) {
+      fetchAvailableClusters();
+    } else {
+      fetchClusterData();
+    }
+  };
+
   // Filter clusters based on search term
   const filteredClusters = availableClusters.filter(cluster =>
     cluster.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -356,45 +443,6 @@ const ClusterEditor: React.FC = () => {
     setSelectedRecords(new Set());
   };
 
-  // Save changes
-  const saveChanges = async () => {
-    try {
-      setSaving(true);
-      setError(null);
-
-      // Validate all records
-      const invalidRecords = records.filter(record => {
-        const validation = validateRecord(record);
-        return !validation.isValid;
-      });
-
-      if (invalidRecords.length > 0) {
-        setError(`${invalidRecords.length} record(s) have validation errors. Please fix them before saving.`);
-        return;
-      }
-
-      // Here you would make API calls to save the changes
-      // For now, just simulate the save
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Mark all records as saved
-      setRecords(records.map(record => ({
-        ...record,
-        isNew: false,
-        isModified: false
-      })));
-
-      setSuccessMessage('Changes saved successfully!');
-      setTimeout(() => setSuccessMessage(null), 3000);
-
-    } catch (err) {
-      console.error('Error saving changes:', err);
-      setError(err instanceof Error ? err.message : 'Failed to save changes');
-    } finally {
-      setSaving(false);
-    }
-  };
-
   // Handle sorting
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -434,6 +482,34 @@ const ClusterEditor: React.FC = () => {
     errors: records.filter(r => r.hasError).length
   };
 
+  // Get save status indicator
+  const getSaveStatusIndicator = () => {
+    switch (saveStatus) {
+      case 'saved':
+        return <div className="flex items-center gap-2 text-green-400 text-sm">
+          <CheckCircle size={16} />
+          <span>Saved</span>
+        </div>;
+      case 'saving':
+        return <div className="flex items-center gap-2 text-yellow-400 text-sm">
+          <div className="w-4 h-4 border-2 border-yellow-400 border-t-transparent rounded-full animate-spin"></div>
+          <span>Saving...</span>
+        </div>;
+      case 'error':
+        return <div className="flex items-center gap-2 text-red-400 text-sm">
+          <AlertTriangle size={16} />
+          <span>Error saving</span>
+        </div>;
+      case 'unsaved':
+        return <div className="flex items-center gap-2 text-gray-400 text-sm">
+          <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+          <span>Unsaved changes</span>
+        </div>;
+      default:
+        return null;
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center mt-40">
@@ -450,7 +526,7 @@ const ClusterEditor: React.FC = () => {
     return (
       <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
         {/* Header */}
-        <div className="border-b" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
+        <div className="border-b" style={{ borderColor: 'var(--border-color)' }}>
           <div className="px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
@@ -461,14 +537,25 @@ const ClusterEditor: React.FC = () => {
                   <ArrowLeft size={20} />
                   Back to Collection
                 </button>
-                <div className="h-6 w-px" style={{ backgroundColor: 'var(--border-color)' }}></div>
-                <div>
-                  <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
-                    Cluster Editor
-                  </h1>
-                  <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                    {projectName} → {collectionName}
-                  </p>
+                <div className="h-6 w-px"></div>
+                
+                {/* Breadcrumbs */}
+                <div className="flex items-center gap-2 text-sm">
+                  <button
+                    onClick={navigateToProjects}
+                    className="text-sb-amber hover:text-sb-amber-dark transition-colors"
+                  >
+                    {projectName}
+                  </button>
+                  <ChevronRight size={16} style={{ color: 'var(--text-secondary)' }} />
+                  <button
+                    onClick={navigateToCollection}
+                    className="text-sb-amber hover:text-sb-amber-dark transition-colors"
+                  >
+                    {collectionName}
+                  </button>
+                  <ChevronRight size={16} style={{ color: 'var(--text-secondary)' }} />
+                  <span style={{ color: 'var(--text-secondary)' }}>Cluster Editor</span>
                 </div>
               </div>
 
@@ -531,7 +618,7 @@ const ClusterEditor: React.FC = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-12 pr-4 py-3 text-lg border-2 border-gray-400 rounded-lg focus:border-sb-amber focus:outline-none transition-colors"
                 style={{
-                  backgroundColor: 'var(--bg-secondary)',
+              
                   color: 'var(--text-primary)'
                 }}
               />
@@ -542,7 +629,7 @@ const ClusterEditor: React.FC = () => {
               <button
                 onClick={() => setIsCreatingNew(!isCreatingNew)}
                 className="w-full flex items-center justify-between p-4 border-2 border-dashed border-gray-400 rounded-lg hover:border-sb-amber transition-colors"
-                style={{ backgroundColor: 'var(--bg-secondary)' }}
+                
               >
                 <div className="flex items-center gap-3">
                   <Plus size={20} className="text-sb-amber" />
@@ -563,7 +650,7 @@ const ClusterEditor: React.FC = () => {
                       onChange={(e) => setNewClusterName(e.target.value)}
                       className="flex-1 px-3 py-2 border-2 border-gray-400 rounded focus:border-sb-amber focus:outline-none transition-colors"
                       style={{
-                        backgroundColor: 'var(--bg-secondary)',
+                        
                         color: 'var(--text-primary)'
                       }}
                       onKeyPress={(e) => e.key === 'Enter' && handleCreateNewCluster()}
@@ -595,7 +682,7 @@ const ClusterEditor: React.FC = () => {
                       key={cluster.id}
                       onClick={() => handleClusterSelect(cluster.name)}
                       className="w-full p-4 text-left border-2 border-gray-400 rounded-lg hover:border-sb-amber hover:bg-sb-amber hover:bg-opacity-10 transition-all"
-                      style={{ backgroundColor: 'var(--bg-secondary)' }}
+                    
                     >
                       <div className="flex items-center justify-between">
                         <div>
@@ -638,56 +725,42 @@ const ClusterEditor: React.FC = () => {
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
       {/* Header */}
-      <div className="border-b" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
+      <div className="border-b" style={{ borderColor: 'var(--border-color)' }}>
         <div className="px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
-                onClick={() => navigate(`/dashboard/projects/${encodeURIComponent(projectName!)}/collections/${encodeURIComponent(collectionName!)}`)}
+                onClick={navigateToCollection}
                 className="flex items-center gap-2 text-sb-amber hover:text-sb-amber-dark transition-colors"
               >
                 <ArrowLeft size={20} />
                 Back to Collection
               </button>
-              <div className="h-6 w-px" style={{ backgroundColor: 'var(--border-color)' }}></div>
-              <div>
-                <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
-                  {clusterInfo?.name || 'Cluster Editor'}
-                </h1>
-                <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                  {projectName} → {collectionName} → {clusterInfo?.name}
-                </p>
+              <div className="h-6 w-px"></div>
+              
+              {/* Breadcrumbs */}
+              <div className="flex items-center gap-2 text-sm">
+                <button
+                  onClick={navigateToProjects}
+                  className="text-sb-amber hover:text-sb-amber-dark transition-colors"
+                >
+                  {projectName}
+                </button>
+                <ChevronRight size={16} style={{ color: 'var(--text-secondary)' }} />
+                <button
+                  onClick={navigateToCollection}
+                  className="text-sb-amber hover:text-sb-amber-dark transition-colors"
+                >
+                  {collectionName}
+                </button>
+                <ChevronRight size={16} style={{ color: 'var(--text-secondary)' }} />
+                <span style={{ color: 'var(--text-primary)' }}>{clusterInfo?.name}</span>
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
-              <button
-                onClick={setShowHelpModal.bind(null, true)}
-                className="p-2 rounded-lg border-2 border-gray-400 hover:border-sb-amber transition-colors"
-                style={{ backgroundColor: 'var(--bg-primary)' }}
-                title="Help"
-              >
-                <HelpCircle size={16} style={{ color: 'var(--text-secondary)' }} />
-              </button>
-              
-              <button
-                onClick={fetchClusterData}
-                disabled={saving}
-                className="p-2 rounded-lg border-2 border-gray-400 hover:border-sb-amber transition-colors"
-                style={{ backgroundColor: 'var(--bg-primary)' }}
-                title="Refresh"
-              >
-                <RefreshCw size={16} style={{ color: 'var(--text-secondary)' }} />
-              </button>
-
-              <button
-                onClick={saveChanges}
-                disabled={saving || (stats.modified === 0 && stats.new === 0)}
-                className="flex items-center gap-2 px-4 py-2 bg-sb-amber hover:bg-sb-amber-dark disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors"
-              >
-                <Save size={16} />
-                {saving ? 'Saving...' : 'Save Changes'}
-              </button>
+            {/* Right side - Save status */}
+            <div className="flex items-center gap-4">
+              {getSaveStatusIndicator()}
             </div>
           </div>
 
@@ -721,7 +794,7 @@ const ClusterEditor: React.FC = () => {
       </div>
 
       {/* Cluster Information Section */}
-      <div className="border-b px-6 py-4" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
+      <div className="border-b px-6 py-4" style={{ borderColor: 'var(--border-color)'}}>
         <div className="max-w-4xl">
           <h2 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
             Cluster Information
@@ -774,8 +847,8 @@ const ClusterEditor: React.FC = () => {
         </div>
       </div>
 
-      {/* Toolbar */}
-      <div className="border-b px-6 py-4" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
+      {/* Toolbar with Search, Filter, and Action Buttons */}
+      <div className="border-b px-6 py-4" style={{ borderColor: 'var(--border-color)' }}>
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             {/* Search */}
@@ -870,6 +943,35 @@ const ClusterEditor: React.FC = () => {
                 </button>
               </>
             )}
+            
+            {/* Action buttons */}
+            <button
+              onClick={() => setShowHelpModal(true)}
+              className="p-2 rounded-lg border-2 border-gray-400 hover:border-sb-amber transition-colors"
+              style={{ backgroundColor: 'var(--bg-primary)' }}
+              title="Help"
+            >
+              <HelpCircle size={16} style={{ color: 'var(--text-secondary)' }} />
+            </button>
+            
+            <button
+              onClick={handleRefresh}
+              className="p-2 rounded-lg border-2 border-gray-400 hover:border-sb-amber transition-colors"
+              style={{ backgroundColor: 'var(--bg-primary)' }}
+              title="Refresh"
+            >
+              <RefreshCw size={16} style={{ color: 'var(--text-secondary)' }} />
+            </button>
+
+            <button
+              onClick={() => setShowRawModal(true)}
+              className="flex items-center gap-2 px-3 py-2 border-2 border-gray-400 hover:border-sb-amber transition-colors rounded-lg"
+              style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}
+              title="View Raw Format"
+            >
+              <span className="text-xs font-mono">{ }</span>
+              <span className="text-sm">Raw</span>
+            </button>
             
             <button
               onClick={addRecord}
@@ -1075,6 +1177,17 @@ const ClusterEditor: React.FC = () => {
             
             <div className="space-y-6" style={{ color: 'var(--text-secondary)' }}>
               <div>
+                <h3 className="font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Auto-Save</h3>
+                <p className="text-sm mb-2">Your changes are automatically saved as you type. Look for the save status indicator in the top-right corner:</p>
+                <ul className="text-sm list-disc list-inside ml-4 space-y-1">
+                  <li><span className="text-green-400">✓ Saved</span> - All changes have been saved</li>
+                  <li><span className="text-yellow-400">⏳ Saving...</span> - Currently saving your changes</li>
+                  <li><span className="text-red-400">⚠️ Error saving</span> - There was an error, check for validation issues</li>
+                  <li><span className="text-gray-400">• Unsaved changes</span> - Changes detected, will save shortly</li>
+                </ul>
+              </div>
+
+              <div>
                 <h3 className="font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Data Types</h3>
                 <div className="space-y-4">
                   {Object.entries(dataTypeCategories).map(([category, types]) => (
@@ -1117,10 +1230,11 @@ const ClusterEditor: React.FC = () => {
                   <li>Times use HH:MM:SS format (24-hour)</li>
                   <li>DateTime combines both with a T separator</li>
                   <li>UUIDs must follow standard format with hyphens</li>
-                  <li>Use Ctrl+S to save your changes</li>
+                  <li>Changes are automatically saved - no need to manually save</li>
                 </ul>
               </div>
             </div>
+            
             <div className="mt-6">
               <button
                 onClick={() => setShowHelpModal(false)}
@@ -1128,24 +1242,100 @@ const ClusterEditor: React.FC = () => {
               >
                 Close Help
               </button>
-        
+            </div>
+
+            <div className="mt-6 text-sm text-center" style={{ color: 'var(--text-secondary)' }}>
+              Need more help? Contact support or check our <a href="/docs" className="text-sb-amber hover:underline">documentation</a>.
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Raw View Modal */}
+      {showRawModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div
+            className="max-w-4xl w-full rounded-lg p-6 max-h-[80vh] overflow-y-auto"
+            style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border-color)' }}
+          >
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
+                  Raw Cluster Format
+                </h2>
+                <span className="text-sm px-2 py-1 bg-sb-amber text-black rounded font-mono">
+                  {clusterInfo?.name}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(generateRawFormat());
+                    setSuccessMessage('Raw format copied to clipboard!');
+                    setTimeout(() => setSuccessMessage(null), 3000);
+                  }}
+                  className="px-3 py-1 text-sm bg-sb-amber hover:bg-sb-amber-dark text-black rounded font-medium transition-colors"
+                >
+                  Copy
+                </button>
+                <button
+                  onClick={() => setShowRawModal(false)}
+                  className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
+                >
+                  <X size={20} style={{ color: 'var(--text-secondary)' }} />
+                </button>
+              </div>
+            </div>
+            
+            <div className="space-y-4">
               <div>
-                <h3 className="font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Tips</h3>
-                <ul className="text-sm space-y-1 list-disc list-inside">
-                  <li>Record names can only contain letters, numbers, underscores (_), and hyphens (-)</li>
-                  <li>Array values must be valid JSON arrays</li>
-                  <li>Boolean values must be exactly "true" or "false"</li>
-                  <li>Dates use YYYY-MM-DD format</li>
-                  <li>Times use HH:MM:SS format (24-hour)</li>
-                  <li>DateTime combines both with a T separator</li>
-                  <li>UUIDs must follow standard format with hyphens</li>
-                  <li>Use Ctrl+S to save your changes</li>
+                <h3 className="font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
+                  Physical File Representation
+                </h3>
+                <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>
+                  This is how your cluster data appears in the actual file structure. 
+                  Each record follows the format: <code className="bg-gray-800 px-1 rounded">name :TYPE: value</code>
+                </p>
+              </div>
+
+              <div className="relative">
+                <pre
+                  className="p-4 rounded-lg border-2 text-sm font-mono overflow-x-auto whitespace-pre"
+                  style={{ 
+                    backgroundColor: 'var(--bg-secondary)', 
+                    borderColor: 'var(--border-color)',
+                    color: 'var(--text-primary)'
+                  }}
+                >
+                  {generateRawFormat()}
+                </pre>
+                
+                {/* Syntax highlighting overlay could go here in the future */}
+                <div className="absolute top-2 right-2">
+                  <span className="text-xs px-2 py-1 rounded" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-secondary)' }}>
+                    {records.length} records
+                  </span>
+                </div>
+              </div>
+
+              <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+                <p><strong>Format Rules:</strong></p>
+                <ul className="list-disc list-inside mt-1 space-y-1">
+                  <li>Cluster metadata uses <code>:identifier:</code> type</li>
+                  <li>Each record follows <code>name :TYPE: value</code> pattern</li>
+                  <li>Array values are displayed as comma-separated lists in brackets</li>
+                  <li>Empty or invalid records are automatically excluded</li>
                 </ul>
               </div>
             </div>
-        
-            <div className="mt-6 text-sm text-center" style={{ color: 'var(--text-secondary)' }}>
-              Need more help? Contact support or check our <a href="/docs" className="text-sb-amber hover:underline">documentation</a>.
+            
+            <div className="mt-6 flex gap-2">
+              <button
+                onClick={() => setShowRawModal(false)}
+                className="flex-1 px-4 py-2 bg-sb-amber hover:bg-sb-amber-dark text-black rounded-lg font-medium transition-colors"
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>
@@ -1153,4 +1343,5 @@ const ClusterEditor: React.FC = () => {
     </div>
   );
 }
- export default ClusterEditor;
+
+export default ClusterEditor;
