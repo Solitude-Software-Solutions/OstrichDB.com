@@ -22,6 +22,7 @@ import "@mantine/core/styles.css";
 
 import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
+import DashboardNavbar from "./components/layout/DashboardNavbar"; // Import the sidebar
 import Hero from "./components/home/Hero";
 import CTA from "./components/home/CTA";
 import Features from "./components/home/Features";
@@ -71,10 +72,12 @@ const theme = createTheme({
 const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <div className="min-h-screen flex flex-col" style={{ backgroundColor: "var(--bg-primary)" }}>
     <Navbar />
-    <main className="flex-1">
-      {children}
-    </main>
-    <Footer />
+    <div className="flex flex-1">
+      <DashboardNavbar />
+      <main className="flex-1">
+        {children}
+      </main>
+    </div>
   </div>
 );
 
