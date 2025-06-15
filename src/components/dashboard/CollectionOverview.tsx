@@ -42,11 +42,12 @@ import {
   EyeOff
 } from 'lucide-react';
 
-interface CollectionStats {
-  totalClusters: number;
-  totalRecords: number;
-  storageUsed: string;
-  lastUpdated: string;
+interface CollectionData {
+  name?: string;
+  cluster_count?: number;
+  record_count?: number;
+  size?: string;
+  // Add other properties as needed
 }
 
 interface Cluster {
@@ -83,14 +84,14 @@ const CollectionOverview: React.FC = () => {
   const { getToken, user, isAuthenticated } = useKindeAuth();
 
   // Component state
-  const [stats, setStats] = useState<CollectionStats | null>(null);
   const [clusters, setClusters] = useState<Cluster[]>([]);
-  const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([]);
-  const [healthIndicators, setHealthIndicators] = useState<HealthIndicator[]>([]);
+  // const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([]);
+  // const [healthIndicators, setHealthIndicators] = useState<HealthIndicator[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [showClusters, setShowClusters] = useState(false);
+  const [collectionData, setCollectionData] = useState<CollectionData | null>(null);
 
   // Navigation functions
   const navigateToProjects = () => {
@@ -113,106 +114,27 @@ const CollectionOverview: React.FC = () => {
 
   const fetchCollectionOverview = async () => {
     try {
+      const token = await getToken();
       setLoading(true);
       setError(null);
-
-      // Mock data - replace with actual API calls
-      const mockStats: CollectionStats = {
-        totalClusters: 5,
-        totalRecords: 1247,
-        storageUsed: '2.4 MB',
-        lastUpdated: '2 hours ago'
-      };
-
-      const mockClusters: Cluster[] = [
-        {
-          name: 'users',
-          id: 'cluster_001',
-          recordCount: 1247,
-          size: '1.8 MB',
-          lastModified: '2 hours ago',
-          createdAt: '2025-01-10T09:30:00'
-        },
-        {
-          name: 'products',
-          id: 'cluster_002', 
-          recordCount: 856,
-          size: '542 KB',
-          lastModified: '1 day ago',
-          createdAt: '2025-01-12T14:15:00'
-        },
-        {
-          name: 'orders',
-          id: 'cluster_003',
-          recordCount: 2341,
-          size: '3.2 MB', 
-          lastModified: '3 hours ago',
-          createdAt: '2025-01-11T11:45:00'
+  
+      const collectionResponse = await fetch(`http://localhost:8042/api/v1/projects/${encodeURIComponent(projectName!)}/collections/${encodeURIComponent(collectionName!)}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
         }
-      ];
-      const mockActivity: ActivityItem[] = [
-        {
-          id: '1',
-          type: 'cluster_created',
-          message: "New cluster 'users' created",
-          timestamp: '3 hours ago',
-          icon: <Database size={16} className="text-blue-400" />
-        },
-        {
-          id: '2',
-          type: 'record_updated',
-          message: "Record 'john_doe' updated in 'customers'",
-          timestamp: '5 hours ago',
-          icon: <FileText size={16} className="text-green-400" />
-        },
-        {
-          id: '3',
-          type: 'query_executed',
-          message: "Query executed: 'Show me all active users'",
-          timestamp: '1 day ago',
-          icon: <Zap size={16} className="text-yellow-400" />
-        },
-        {
-          id: '4',
-          type: 'data_exported',
-          message: "Data exported to CSV format",
-          timestamp: '2 days ago',
-          icon: <TrendingUp size={16} className="text-purple-400" />
-        }
-      ];
-
-      const mockHealth: HealthIndicator[] = [
-        {
-          label: 'Cluster Health',
-          status: 'healthy',
-          icon: <CheckCircle size={16} className="text-green-400" />,
-          message: 'All clusters are healthy and accessible'
-        },
-        {
-          label: 'Encryption',
-          status: 'healthy',
-          icon: <Lock size={16} className="text-green-400" />,
-          message: 'AES-256 encryption enabled'
-        },
-        {
-          label: 'Data Validation',
-          status: 'healthy',
-          icon: <Shield size={16} className="text-green-400" />,
-          message: 'All records pass validation checks'
-        },
-        {
-          label: 'Performance',
-          status: 'healthy',
-          icon: <Activity size={16} className="text-green-400" />,
-          message: 'Query response times are optimal'
-        }
-      ];
-
-      setStats(mockStats);
-      setClusters(mockClusters);
-      setRecentActivity(mockActivity);
-      setHealthIndicators(mockHealth);
-
+      });
+      
+      if (!collectionResponse.ok) { 
+        throw new Error(`Failed to fetch collection data: ${collectionResponse.statusText}`);
+      }
+      
+      const data = await collectionResponse.json();
+      setCollectionData(data);
+      
+  
     } catch (err) {
       console.error('Error fetching collection overview:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch collection data');
@@ -220,6 +142,7 @@ const CollectionOverview: React.FC = () => {
       setLoading(false);
     }
   };
+  
 
   const getStatusColor = (status: HealthIndicator['status']) => {
     switch (status) {
@@ -345,7 +268,7 @@ const CollectionOverview: React.FC = () => {
                   </div>
                 </div>
                 <div className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>
-                  {stats?.totalClusters || 0}
+                  {collectionData?.cluster_count || 0}
                 </div>
               </div>
 
@@ -362,7 +285,7 @@ const CollectionOverview: React.FC = () => {
                   </div>
                 </div>
                 <div className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>
-                  {formatNumber(stats?.totalRecords || 0)}
+                  {formatNumber(collectionData?.record_count || 0)}
                 </div>
               </div>
 
@@ -379,26 +302,10 @@ const CollectionOverview: React.FC = () => {
                   </div>
                 </div>
                 <div className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>
-                  {stats?.storageUsed || '0 KB'}
+                  {collectionData?.size || '0 KB'}
                 </div>
               </div>
-
-              <div 
-                className="p-6 rounded-lg border"
-                style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <Clock size={20} className="text-yellow-400" />
-                    <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
-                      Last Updated
-                    </span>
-                  </div>
-                </div>
-                <div className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
-                  {stats?.lastUpdated || 'Never'}
-                </div>
-              </div>
+              {/* TODO: Add recent activy stat? */}
             </div>
           </div>
 
@@ -471,83 +378,7 @@ const CollectionOverview: React.FC = () => {
               </div>
             )}
           </div>
-
-          <div className="grid lg:grid-cols-2 gap-8">
-            {/* Recent Activity */}
-            <div>
-              <h2 className="text-xl font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
-                Recent Activity
-              </h2>
-              <div 
-                className="rounded-lg border"
-                style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}
-              >
-                {recentActivity.length === 0 ? (
-                  <div className="p-8 text-center">
-                    <div className="text-4xl mb-4">📋</div>
-                    <h3 className="font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
-                      No Recent Activity
-                    </h3>
-                    <p style={{ color: 'var(--text-secondary)' }}>
-                      Activity will appear here as you work with your collection
-                    </p>
-                  </div>
-                ) : (
-                  <div className="divide-y" style={{ borderColor: 'var(--border-color)' }}>
-                    {recentActivity.map((activity) => (
-                      <div key={activity.id} className="p-4 flex items-start gap-3">
-                        <div className="flex-shrink-0 mt-1">
-                          {activity.icon}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
-                            {activity.message}
-                          </p>
-                          <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>
-                            {activity.timestamp}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Collection Health */}
-            <div>
-              <h2 className="text-xl font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
-                Collection Health
-              </h2>
-              <div 
-                className="rounded-lg border p-6"
-                style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}
-              >
-                <div className="space-y-4">
-                  {healthIndicators.map((indicator, index) => (
-                    <div key={index} className="flex items-start gap-3">
-                      <div className="flex-shrink-0 mt-1">
-                        {indicator.icon}
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="font-medium" style={{ color: 'var(--text-primary)' }}>
-                            {indicator.label}
-                          </span>
-                          <span className={`text-xs font-medium ${getStatusColor(indicator.status)}`}>
-                            {indicator.status.toUpperCase()}
-                          </span>
-                        </div>
-                        <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                          {indicator.message}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
+        {/* TODO: Add Recent Activity Section */}
         </div>
       </div>
 
