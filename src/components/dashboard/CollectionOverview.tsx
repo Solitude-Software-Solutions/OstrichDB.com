@@ -22,16 +22,9 @@ import {
   HelpCircle,
   Database,
   FileText,
-  Clock,
-  Shield,
-  CheckCircle,
   AlertTriangle,
   TrendingUp,
   Users,
-  Calendar,
-  Lock,
-  Zap,
-  Activity,
   X,
   Lightbulb,
   Target,
@@ -59,20 +52,8 @@ interface Cluster {
   createdAt: string;
 }
 
-interface ActivityItem {
-  id: string;
-  type: 'cluster_created' | 'record_updated' | 'query_executed' | 'data_exported';
-  message: string;
-  timestamp: string;
-  icon: React.ReactNode;
-}
 
-interface HealthIndicator {
-  label: string;
-  status: 'healthy' | 'warning' | 'error';
-  icon: React.ReactNode;
-  message: string;
-}
+
 
 const CollectionOverview: React.FC = () => {
   const { projectName, collectionName } = useParams<{
@@ -111,13 +92,14 @@ const CollectionOverview: React.FC = () => {
       fetchCollectionOverview();
     }
   }, [isAuthenticated, user, projectName, collectionName]);
-
+ 
   const fetchCollectionOverview = async () => {
     try {
       const token = await getToken();
       setLoading(true);
       setError(null);
   
+      // Fetch collection data
       const collectionResponse = await fetch(`http://localhost:8042/api/v1/projects/${encodeURIComponent(projectName!)}/collections/${encodeURIComponent(collectionName!)}`, {
         method: 'GET',
         headers: {
@@ -131,25 +113,46 @@ const CollectionOverview: React.FC = () => {
         throw new Error(`Failed to fetch collection data: ${collectionResponse.statusText}`);
       }
       
-      const data = await collectionResponse.json();
-      setCollectionData(data);
-      
+      const collectionData = await collectionResponse.json();
+      setCollectionData(collectionData);
+  
+      // Fetch clusters data
+      const clustersResponse = await fetch(`http://localhost:8042/api/v1/projects/${encodeURIComponent(projectName!)}/collections/${encodeURIComponent(collectionName!)}/clusters`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        }
+      });
+  
+      if (clustersResponse.ok) {
+        const clustersData = await clustersResponse.json();      
+        if (clustersData.clusters && Array.isArray(clustersData.clusters)) {
+          const transformedClusters: Cluster[] = clustersData.clusters.map((cluster: any) => ({
+            name: cluster.name,
+            id: cluster.id.toString(),
+            recordCount: cluster.record_count,
+            size: "Unknown", 
+            lastModified: "Unknown",
+            createdAt: "Unknown" 
+          }));
+          
+          setClusters(transformedClusters);
+        }
+      } else if (clustersResponse.status === 204) {
+        // No content - no clusters exist, which is fine
+        setClusters([]);
+      } else {
+        console.warn('Failed to fetch clusters:', clustersResponse.statusText);
+        setClusters([]);
+      }
   
     } catch (err) {
       console.error('Error fetching collection overview:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch collection data');
     } finally {
       setLoading(false);
-    }
-  };
-  
-
-  const getStatusColor = (status: HealthIndicator['status']) => {
-    switch (status) {
-      case 'healthy': return 'text-green-400';
-      case 'warning': return 'text-yellow-400';
-      case 'error': return 'text-red-400';
-      default: return 'text-gray-400';
     }
   };
 
@@ -297,7 +300,7 @@ const CollectionOverview: React.FC = () => {
                   <div className="flex items-center gap-2">
                     <TrendingUp size={20} className="text-purple-400" />
                     <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
-                      Storage Used
+                      Bytes Used
                     </span>
                   </div>
                 </div>
@@ -308,12 +311,11 @@ const CollectionOverview: React.FC = () => {
               {/* TODO: Add recent activy stat? */}
             </div>
           </div>
-
           {/* Clusters Section */}
           <div>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold" style={{ color: 'var(--text-primary)' }}>
-                Clusters
+                Clusters ({clusters.length})
               </h2>
               <button
                 onClick={() => setShowClusters(!showClusters)}
@@ -345,6 +347,7 @@ const CollectionOverview: React.FC = () => {
                     </button>
                   </div>
                 ) : (
+                  // This is where your existing clusters will be displayed
                   clusters.map((cluster) => (
                     <div
                       key={cluster.id}
@@ -367,17 +370,16 @@ const CollectionOverview: React.FC = () => {
                       </div>
                       
                       <div className="space-y-1 text-sm" style={{ color: 'var(--text-secondary)' }}>
+                        <p className="text-lg"> ID: {cluster.id}</p>
                         <p>📝 Records: {formatNumber(cluster.recordCount)}</p>
-                        <p>📊 Size: {cluster.size}</p>
-                        <p>🕒 Modified: {cluster.lastModified}</p>
-                        <p className="text-xs">ID: {cluster.id}</p>
+                        {/* <p>📊 Size: {cluster.size}</p>  */}
                       </div>
                     </div>
                   ))
                 )}
               </div>
             )}
-          </div>
+          </div>               
         {/* TODO: Add Recent Activity Section */}
         </div>
       </div>
