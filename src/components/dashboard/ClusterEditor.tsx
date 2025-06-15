@@ -183,48 +183,34 @@ const ClusterEditor: React.FC = () => {
       if (isSearchMode) {
         fetchAvailableClusters();
       } else {
-        fetchClusterData();
+        fetchRecordsInCluster();
       }
     }
   }, [isAuthenticated, user, projectName, collectionName, clusterName]);
 
   const fetchAvailableClusters = async () => {
     try {
+      const token = await getToken();
       setLoading(true);
       setError(null);
 
-      // Mock data for available clusters - replace with actual API call
-      const mockClusters: ClusterInfo[] = [
-        {
-          name: 'users',
-          id: 'cluster_001',
-          recordCount: 1247,
-          size: '1.8 MB',
-          createdAt: '2025-01-10T09:30:00',
-          lastModified: '2025-01-15T14:30:45',
-          encryption: true
-        },
-        {
-          name: 'products',
-          id: 'cluster_002',
-          recordCount: 856,
-          size: '542 KB',
-          createdAt: '2025-01-12T14:15:00',
-          lastModified: '2025-01-14T11:20:30',
-          encryption: true
-        },
-        {
-          name: 'orders',
-          id: 'cluster_003',
-          recordCount: 2341,
-          size: '3.2 MB',
-          createdAt: '2025-01-11T11:45:00',
-          lastModified: '2025-01-15T16:45:12',
-          encryption: true
+      const clusters = await fetch(`http://localhost:8042/api/v1/projects/${encodeURIComponent(projectName!)}/collections/${encodeURIComponent(collectionName!)}/clusters`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
         }
-      ];
+      });   
 
-      setAvailableClusters(mockClusters);
+      const clustersData = await clusters.json();
+      if (!clusters.ok) {
+        throw new Error(clustersData.message || 'Failed to fetch clusters');
+      }
+      setAvailableClusters(clustersData);
+
+
+
     } catch (err) {
       console.error('Error fetching available clusters:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch clusters');
@@ -233,72 +219,80 @@ const ClusterEditor: React.FC = () => {
     }
   };
 
-  const fetchClusterData = async () => {
+  const fetchRecordsInCluster = async () => {
     try {
+      const token = await getToken();
       setLoading(true);
       setError(null);
-
-      // Mock data - replace with actual API calls
-      const mockClusterInfo: ClusterInfo = {
-        name: clusterName || 'new-cluster',
-        id: '12345',
-        recordCount: 0,
-        size: '0 KB',
-        createdAt: new Date().toISOString(),
-        lastModified: new Date().toISOString(),
-        encryption: true
-      };
-
-      const mockRecords: Record[] = [
-        {
-          id: '1',
-          name: 'user_id',
-          type: 'INTEGER',
-          value: '1001'
-        },
-        {
-          id: '2',
-          name: 'username',
-          type: 'STRING',
-          value: 'john_doe'
-        },
-        {
-          id: '3',
-          name: 'email',
-          type: 'STRING',
-          value: 'john@example.com'
-        },
-        {
-          id: '4',
-          name: 'is_active',
-          type: 'BOOLEAN',
-          value: 'true'
-        },
-        {
-          id: '5',
-          name: 'created_at',
-          type: 'DATETIME',
-          value: '2025-01-15T14:30:45'
-        },
-        {
-          id: '6',
-          name: 'user_uuid',
-          type: 'UUID',
-          value: '550e8400-e29b-41d4-a716-446655440000'
+  
+      //fetch all the records for the selected cluster
+      const response = await fetch(`http://localhost:8042/api/v1/projects/${encodeURIComponent(projectName!)}/collections/${encodeURIComponent(collectionName!)}/clusters/${encodeURIComponent(clusterName!)}/records`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
         }
-      ];
+      });      
+      
+      const recordsData = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(recordsData.message || 'Failed to fetch records');
+      }
 
-      setClusterInfo(mockClusterInfo);
-      setRecords(mockRecords);
-
+      
+      let recordsArray = [];
+      
+      if (Array.isArray(recordsData)) {
+        recordsArray = recordsData;
+      } else if (recordsData && Array.isArray(recordsData.records)) {
+        recordsArray = recordsData.records;
+      } else if (recordsData && typeof recordsData === 'object') {
+        // If it's an object but not the expected format, log it for debugging
+        console.log('Unexpected records format:', recordsData);
+        recordsArray = [];
+      }
+  
+      // Transform the data to match your Record interface if needed
+      const transformedRecords = recordsArray.map((record: { id: any; name: any; type: any; value: any; }) => ({
+        id: record.id || `record_${Date.now()}_${Math.random()}`,
+        name: record.name || '',
+        type: record.type || 'STRING',
+        value: record.value || '',
+        isNew: false,
+        isModified: false,
+        hasError: false
+      }));
+  
+      setRecords(transformedRecords);
+  
+      // If you also need to set cluster info, you might get it from the response
+      // or make a separate API call
+      if (recordsData.clusterInfo) {
+        setClusterInfo(recordsData.clusterInfo);
+      } else {
+        // Set basic cluster info from what we know
+        setClusterInfo({
+          name: clusterName!,
+          id: recordsData.clusterId || 'unknown',
+          recordCount: transformedRecords.length,
+          size: `${transformedRecords.length} records`,
+          createdAt: recordsData.createdAt || new Date().toISOString(),
+          lastModified: recordsData.lastModified || new Date().toISOString(),
+          encryption: recordsData.encryption || false
+        });
+      }
+  
     } catch (err) {
       console.error('Error fetching cluster data:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch cluster data');
+      // Ensure records is always an array, even on error
+      setRecords([]);
     } finally {
       setLoading(false);
     }
   };
-
   // Handle cluster selection from search
   const handleClusterSelect = (selectedClusterName: string) => {
     navigate(`/dashboard/projects/${encodeURIComponent(projectName!)}/collections/${encodeURIComponent(collectionName!)}/cluster-editor/${encodeURIComponent(selectedClusterName)}`);
@@ -341,7 +335,7 @@ const ClusterEditor: React.FC = () => {
     if (isSearchMode) {
       fetchAvailableClusters();
     } else {
-      fetchClusterData();
+      fetchRecordsInCluster();
     }
   };
 
