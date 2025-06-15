@@ -30,7 +30,6 @@ import {
 } from 'lucide-react';
 import { 
   RecordDataType, 
-  DATA_TYPES, 
   getDataTypesByCategory,
   validateRecordName, 
   validateRecordValue, 
@@ -42,6 +41,7 @@ import {
 
 interface Record {
   id: string;
+  serverId?: string; //This would come from the server if available: 1,2,3,4,etc.
   name: string;
   type: RecordDataType;
   value: string;
@@ -165,6 +165,7 @@ const ClusterEditor: React.FC = () => {
     }
   }, [records, isEditMode, saveStatus]);
 
+  
   // Debounced auto-save effect
   useEffect(() => {
     const hasChanges = records.some(r => r.isNew || r.isModified);
@@ -217,15 +218,48 @@ const ClusterEditor: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  };  
 
   const fetchRecordsInCluster = async () => {
     try {
       const token = await getToken();
       setLoading(true);
       setError(null);
+      // First, fetch the cluster metadata from the clusters list
+      
+      const clustersResponse = await fetch(`http://localhost:8042/api/v1/projects/${encodeURIComponent(projectName!)}/collections/${encodeURIComponent(collectionName!)}/clusters`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        }
+      });
   
-      //fetch all the records for the selected cluster
+      let clusterMetadata = null;
+      if (clustersResponse.ok) {
+        const clustersData = await clustersResponse.json();
+        if (clustersData.clusters && Array.isArray(clustersData.clusters)) {
+          // Find the specific cluster we're editing
+          const targetCluster = clustersData.clusters.find((cluster: any) => 
+            cluster.name === clusterName
+          );
+          
+          if (targetCluster) {
+            clusterMetadata = {
+              name: targetCluster.name,
+              id: targetCluster.id.toString(), // This is the actual cluster ID
+              recordCount: targetCluster.record_count,
+              size: "Unknown", // You can update this if the API provides size
+              lastModified: "Unknown", // You can update this if the API provides lastModified
+              createdAt: "Unknown", // You can update this if the API provides createdAt
+              encryption: true // Default or from API if available
+            };
+          }
+        }
+      }
+  
+      // Then fetch all the records for the selected cluster
       const response = await fetch(`http://localhost:8042/api/v1/projects/${encodeURIComponent(projectName!)}/collections/${encodeURIComponent(collectionName!)}/clusters/${encodeURIComponent(clusterName!)}/records`, {
         method: 'GET',
         headers: {
@@ -240,8 +274,7 @@ const ClusterEditor: React.FC = () => {
       if (!response.ok) {
         throw new Error(recordsData.message || 'Failed to fetch records');
       }
-
-      
+  
       let recordsArray = [];
       
       if (Array.isArray(recordsData)) {
@@ -249,14 +282,13 @@ const ClusterEditor: React.FC = () => {
       } else if (recordsData && Array.isArray(recordsData.records)) {
         recordsArray = recordsData.records;
       } else if (recordsData && typeof recordsData === 'object') {
-        // If it's an object but not the expected format, log it for debugging
         console.log('Unexpected records format:', recordsData);
         recordsArray = [];
       }
-  
-      // Transform the data to match your Record interface if needed
-      const transformedRecords = recordsArray.map((record: { id: any; name: any; type: any; value: any; }) => ({
-        id: record.id || `record_${Date.now()}_${Math.random()}`,
+
+      const transformedRecords = recordsArray.map((record: { id: any; name: any; type: any; value: any; }, index: number) => ({
+        id: `client_${Date.now()}_${index}_${Math.random().toString(36).substr(2, 9)}`, // Always unique client ID
+        serverId: record.id, // Keep server ID for reference if needed
         name: record.name || '',
         type: record.type || 'STRING',
         value: record.value || '',
@@ -264,36 +296,34 @@ const ClusterEditor: React.FC = () => {
         isModified: false,
         hasError: false
       }));
-  
       setRecords(transformedRecords);
   
-      // If you also need to set cluster info, you might get it from the response
-      // or make a separate API call
-      if (recordsData.clusterInfo) {
-        setClusterInfo(recordsData.clusterInfo);
+      // Set cluster info using the fetched metadata
+      if (clusterMetadata) {
+        // Update record count with actual count from records
+        clusterMetadata.recordCount = transformedRecords.length;
+        setClusterInfo(clusterMetadata);
       } else {
-        // Set basic cluster info from what we know
+        // Fallback if cluster metadata wasn't found
         setClusterInfo({
           name: clusterName!,
-          id: recordsData.clusterId || 'unknown',
+          id: 'unknown', // This will only happen if the cluster wasn't found in the list
           recordCount: transformedRecords.length,
           size: `${transformedRecords.length} records`,
-          createdAt: recordsData.createdAt || new Date().toISOString(),
-          lastModified: recordsData.lastModified || new Date().toISOString(),
-          encryption: recordsData.encryption || false
+          createdAt: new Date().toISOString(),
+          lastModified: new Date().toISOString(),
+          encryption: false
         });
       }
   
     } catch (err) {
       console.error('Error fetching cluster data:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch cluster data');
-      // Ensure records is always an array, even on error
       setRecords([]);
     } finally {
       setLoading(false);
     }
   };
-  // Handle cluster selection from search
   const handleClusterSelect = (selectedClusterName: string) => {
     navigate(`/dashboard/projects/${encodeURIComponent(projectName!)}/collections/${encodeURIComponent(collectionName!)}/cluster-editor/${encodeURIComponent(selectedClusterName)}`);
   };
@@ -361,21 +391,19 @@ const ClusterEditor: React.FC = () => {
     return { isValid: true };
   };
 
-  // Add new record
   const addRecord = () => {
     const newRecord: Record = {
-      id: `new_${Date.now()}`,
+      id: `new_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`, // generate a unique client-side only ID for each new record
       name: '',
       type: 'STRING',
       value: '',
       isNew: true
     };
-    setRecords([...records, newRecord]);
+    setRecords(prev => [...prev, newRecord]);
   };
 
-  // Update record field
   const updateRecord = (id: string, field: keyof Record, value: string) => {
-    setRecords(records.map(record => {
+    setRecords(prevRecords => prevRecords.map(record => {
       if (record.id === id) {
         const updatedRecord = { ...record, [field]: value, isModified: !record.isNew };
         
