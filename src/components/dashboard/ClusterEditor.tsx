@@ -105,6 +105,8 @@ const ClusterEditor: React.FC = () => {
   const isSearchMode = !clusterName;
   const isEditMode = !!clusterName;
 
+  const isNewCluster = isEditMode && availableClusters.every(c => c.name !== clusterName);
+
   // Generate raw format function
   const generateRawFormat = () => {
     if (!clusterInfo || !records.length) return '';
@@ -183,11 +185,23 @@ const ClusterEditor: React.FC = () => {
     if (isAuthenticated && user && projectName && collectionName) {
       if (isSearchMode) {
         fetchAvailableClusters();
-      } else {
+      } else if (!isNewCluster) { // If editing an existing cluster
         fetchRecordsInCluster();
+      } else {        
+        setRecords([]);
+        setClusterInfo({
+          name: clusterName!,
+          id: 'unsaved',
+          recordCount: 0,
+          size: '0 records',
+          createdAt: new Date().toISOString(),
+          lastModified: new Date().toISOString(),
+          encryption: false
+        });
+        setLoading(false);
       }
     }
-  }, [isAuthenticated, user, projectName, collectionName, clusterName]);
+  }, [isAuthenticated, user, projectName, collectionName, clusterName, isSearchMode, isNewCluster]);
   
   const fetchAvailableClusters = async () => {
     try {
@@ -754,6 +768,94 @@ const ClusterEditor: React.FC = () => {
     );
   }
 
+
+  async function handleConfirmClusterCreation(event: React.MouseEvent<HTMLButtonElement, MouseEvent>): Promise<void> {
+    event.preventDefault();
+    setError(null);
+    setSuccessMessage(null);
+
+    // Validate all records before sending
+    const invalidRecords = records.filter(record => {
+      const validation = validateRecord(record);
+      return !validation.isValid;
+    });
+
+    if (!clusterInfo?.name) {
+      setError('Cluster name is required.');
+      return;
+    }
+
+    if (invalidRecords.length > 0) {
+      setError('Please fix errors in your records before creating the cluster.');
+      return;
+    }
+
+    try {
+      setSaveStatus('saving');
+      const token = await getToken();
+
+      // Prepare the record payload
+      const payload = {
+        records: records.map(r => ({
+          name: r.name,
+          type: r.type,
+          value: r.value
+        }))
+      };
+
+      //OstrichDB POST request DO NOT send back JSON. All that needs to happen is adding the cluster name and or record name, type, and value to the URL.
+      
+      //First create the Cluster
+      const clusterCreationResponse = await fetch(
+        `http://localhost:8042/api/v1/projects/${encodeURIComponent(projectName!)}/collections/${encodeURIComponent(collectionName!)}/clusters/${encodeURIComponent(clusterInfo.name)}`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+        }
+      );
+
+      if (!clusterCreationResponse.ok) {
+        setSaveStatus('error');
+        setError('Failed to create cluster.');
+        return;
+      }
+
+      //Now for each record, send a POST request to add it to the Cluster
+      for (const record of payload.records) {
+        const recordCreationResponse = await fetch(
+          `http://localhost:8042/api/v1/projects/${encodeURIComponent(projectName!)}/collections/${encodeURIComponent(collectionName!)}/clusters/${encodeURIComponent(clusterInfo.name)}/records/${encodeURIComponent(record.name)}?type=${encodeURIComponent(record.type)}&value=${encodeURIComponent(record.value)}`,
+          {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+          }
+        );
+
+        if (!recordCreationResponse.ok) {
+          setSaveStatus('error');
+          setError('Failed to add record to cluster.');
+          return;
+        }
+      }
+
+      setSaveStatus('saved');
+      setSuccessMessage('Cluster created successfully!');
+      // Optionally, navigate to the new cluster's edit page with its real ID
+      setTimeout(() => {
+        navigate(`/dashboard/projects/${encodeURIComponent(projectName!)}/collections/${encodeURIComponent(collectionName!)}/cluster-editor/${encodeURIComponent(clusterInfo.name)}`);
+      }, 1000);
+    } catch (err) {
+      setSaveStatus('error');
+      setError(err instanceof Error ? err.message : 'Failed to create cluster.');
+    }
+  }
   // Render cluster editor interface
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
@@ -1371,6 +1473,21 @@ const ClusterEditor: React.FC = () => {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Confirmation button */}
+      {isEditMode && isNewCluster && (
+        <div className="p-6 max-w-2xl mx-auto">
+          <button
+            onClick={handleConfirmClusterCreation}
+            className="mt-6 px-6 py-3 bg-sb-amber hover:bg-sb-amber-dark text-white rounded font-medium transition-colors"
+            disabled={saveStatus === 'saving'}
+          >
+            {saveStatus === 'saving' ? 'Saving...' : 'Confirm Cluster Creation'}
+          </button>
+          {error && <div className="mt-4 text-red-500">{error}</div>}
+          {successMessage && <div className="mt-4 text-green-500">{successMessage}</div>}
         </div>
       )}
     </div>
