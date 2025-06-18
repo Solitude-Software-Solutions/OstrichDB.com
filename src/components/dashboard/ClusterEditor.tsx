@@ -1,6 +1,6 @@
 /**
  * =================================================
- * Author: Marshall A Burns (based on wireframe)
+ * Author: Marshall A Burns
  * GitHub: @SchoolyB
  * Contributors:
  *
@@ -737,11 +737,11 @@ const ClusterEditor: React.FC = () => {
                             {cluster.name}
                           </h4>
                           <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                            {cluster.recordCount} records • {cluster.size} • ID: {cluster.id}
+                            Records: {cluster.recordCount} ID: {cluster.id}
                           </p>
                         </div>
                         <div className="text-sb-amber">
-                          {/* <ChevronRight size={16} /> */}
+                          <ChevronRight size={16} />
                         </div>
                       </div>
                     </button>
