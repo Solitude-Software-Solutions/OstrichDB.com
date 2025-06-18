@@ -856,7 +856,41 @@ const ClusterEditor: React.FC = () => {
       setError(err instanceof Error ? err.message : 'Failed to create cluster.');
     }
   }
-  // Render cluster editor interface
+  const handleConfirmClusterUpdate = async () => {
+    try {
+      setSaveStatus('saving');
+      setError(null);
+      const token = await getToken();
+      for (const record of records) {
+        if (record.isNew) { //For new records, send a POST request
+          await fetch(`http://localhost:8042/api/v1/projects/${encodeURIComponent(projectName!)}/collections/${encodeURIComponent(collectionName!)}/clusters/${encodeURIComponent(clusterName!)}/records/${encodeURIComponent(record.name)}?type=${encodeURIComponent(record.type)}&value=${encodeURIComponent(record.value)}`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+          }); 
+        } else if (record.isModified) { //For modified records, send a PUT request
+          await fetch(`http://localhost:8042/api/v1/projects/${encodeURIComponent(projectName!)}/collections/${encodeURIComponent(collectionName!)}/clusters/${encodeURIComponent(clusterName!)}/records/${encodeURIComponent(record.name)}?type=${encodeURIComponent(record.type)}&value=${encodeURIComponent(record.value)}`, {
+            method: 'PUT',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+          });
+        }
+      }
+      setSaveStatus('saved');
+      setSuccessMessage('Changes saved!');
+      fetchRecordsInCluster();
+    } catch (err) {
+      setSaveStatus('error');
+      setError(err instanceof Error ? err.message : 'Failed to save changes');
+    }
+  };
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
       {/* Header */}
@@ -1477,14 +1511,18 @@ const ClusterEditor: React.FC = () => {
       )}
 
       {/* Confirmation button */}
-      {isEditMode && isNewCluster && (
+      {isEditMode && (
         <div className="p-6 max-w-2xl mx-auto">
           <button
-            onClick={handleConfirmClusterCreation}
+            onClick={isNewCluster ? handleConfirmClusterCreation : handleConfirmClusterUpdate}
             className="mt-6 px-6 py-3 bg-sb-amber hover:bg-sb-amber-dark text-white rounded font-medium transition-colors"
-            disabled={saveStatus === 'saving'}
+            disabled={saveStatus === 'saving' || (!isNewCluster && saveStatus !== 'unsaved')}
           >
-            {saveStatus === 'saving' ? 'Saving...' : 'Confirm Cluster Creation'}
+            {saveStatus === 'saving'
+              ? 'Saving...'
+              : isNewCluster
+                ? 'Confirm Cluster Creation'
+                : 'Confirm Changes'}
           </button>
           {error && <div className="mt-4 text-red-500">{error}</div>}
           {successMessage && <div className="mt-4 text-green-500">{successMessage}</div>}
