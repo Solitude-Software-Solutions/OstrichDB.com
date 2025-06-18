@@ -188,13 +188,13 @@ const ClusterEditor: React.FC = () => {
       }
     }
   }, [isAuthenticated, user, projectName, collectionName, clusterName]);
-
+  
   const fetchAvailableClusters = async () => {
     try {
       const token = await getToken();
       setLoading(true);
       setError(null);
-
+  
       const clusters = await fetch(`http://localhost:8042/api/v1/projects/${encodeURIComponent(projectName!)}/collections/${encodeURIComponent(collectionName!)}/clusters`, {
         method: 'GET',
         headers: {
@@ -203,22 +203,26 @@ const ClusterEditor: React.FC = () => {
           'Accept': 'application/json',
         }
       });   
-
+  
       const clustersData = await clusters.json();
       if (!clusters.ok) {
         throw new Error(clustersData.message || 'Failed to fetch clusters');
       }
-      setAvailableClusters(clustersData);
-
-
-
+      
+      // Ensure we always set an array
+      setAvailableClusters(Array.isArray(clustersData?.clusters) ? clustersData.clusters : []);
+  
     } catch (err) {
       console.error('Error fetching available clusters:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch clusters');
+      // Set empty array on error
+      setAvailableClusters([]);
     } finally {
       setLoading(false);
     }
-  };  
+  };
+
+
 
   const fetchRecordsInCluster = async () => {
     try {
@@ -370,9 +374,16 @@ const ClusterEditor: React.FC = () => {
   };
 
   // Filter clusters based on search term
-  const filteredClusters = availableClusters.filter(cluster =>
-    cluster.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // const filteredClusters = availableClusters.filter(cluster =>
+  //   cluster.name.toLowerCase().includes(searchTerm.toLowerCase())
+  // );
+
+  const filteredClusters = Array.isArray(availableClusters) 
+  ? availableClusters.filter(cluster =>
+      cluster.name.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  : [];
+
 
   // Validate record value based on type
   const validateRecord = (record: Record): { isValid: boolean; errorMessage?: string } => {

@@ -183,7 +183,7 @@ function App() {
             <Routes>
               {/* Dashboard - Project Selection */}
               <Route 
-                path="/dashboard" 
+                path="/dashboard/*" 
                 element={
                   <DashboardLayout>
                     <Dashboard />
