@@ -164,8 +164,7 @@ const CollectionsComponent: React.FC = () => {
   }, [isAuthenticated, user, projectName]);
 
   const fetchCollections = async () => {
-    console.log('DEBUG: Project Name:', projectName); 
-    console.log('DEBUG: Full URL:', `/api/v1/projects/${encodeURIComponent(projectName!)}/collections`);
+
     try {
       setLoading(true);
       setError(null);

@@ -24,6 +24,7 @@ import ProjectsComponent from '../components/dashboard/ProjectsComponent';
 import CollectionsComponent from '../components/dashboard/CollectionsComponent';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
+import NLPInterface from '../components/dashboard/NLP';
 
 const Dashboard: React.FC = () => {
 
@@ -49,6 +50,9 @@ const Dashboard: React.FC = () => {
               </p>
             </div>
           } />
+            //The NLP interface component can be added here
+          <Route path="/projects/:projectName/nlp" element={<NLPInterface />} />
+
         </Routes>
       </main>
       <Footer />  
