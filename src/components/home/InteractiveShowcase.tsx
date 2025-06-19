@@ -94,49 +94,27 @@ GET .../records?minValue=1000&maxValue=3000`,
   const currentExamples = activeMode === "API" ? apiExamples : guiExamples;
 
   const NLQEditor = () => (
-    <div className="space-y-4">
-      <div className="text-center mb-6">
+    <div className="flex flex-col items-center justify-center h-full text-center space-y-4 p-6">
+      <div className="mb-6">
         <h3 className="text-xl font-bold mb-2" style={{ color: "var(--text-primary)" }}>Natural Language Queries</h3>
         <p className="text-sm" style={{ color: "var(--text-secondary)" }}>Ask questions in plain English</p>
       </div>
       
-      <div className="rounded-lg p-4 border" style={{ 
-        backgroundColor: "var(--bg-secondary)", 
-        borderColor: "var(--border-color)" 
-      }}>
-        <div className="mb-4">
-          <label className="text-xs uppercase tracking-wide" style={{ color: "var(--text-secondary)" }}>Try asking:</label>
-        </div>
-        <textarea
-          placeholder="Show me all users who signed up in the last 30 days and have made at least one purchase..."
-          className="w-full rounded-lg px-4 py-3 h-24 resize-none border"
-          style={{ 
-            backgroundColor: "var(--bg-primary)", 
-            borderColor: "var(--border-color)",
-            color: "var(--text-primary)"
-          }}
-        />
-        <button className="mt-3 bg-sb-amber hover:bg-sb-amber-dark text-white rounded px-4 py-2 text-sm font-medium transition-colors">
-          Execute Query
-        </button>
-      </div>
+     
       
       <div className="rounded-lg p-4 border border-dashed" style={{ 
         backgroundColor: "var(--bg-secondary)", 
         borderColor: "var(--border-color)" 
       }}>
-        <div className="text-xs mb-2" style={{ color: "var(--text-secondary)" }}>Example queries:</div>
-        <div className="space-y-2">
-          <div className="text-sm cursor-pointer hover:text-sb-amber transition-colors" style={{ color: "var(--text-primary)" }}>
-            • "Find all orders over $100 from this month"
-          </div>
-          <div className="text-sm cursor-pointer hover:text-sb-amber transition-colors" style={{ color: "var(--text-primary)" }}>
-            • "Show me users who haven't logged in for 90 days"
-          </div>
-          <div className="text-sm cursor-pointer hover:text-sb-amber transition-colors" style={{ color: "var(--text-primary)" }}>
-            • "Delete all test data from the staging cluster"
-          </div>
-        </div>
+
+         <div className="mb-4">
+          <p className="text-sm uppercase tracking-wide" style={{ color: "var(--text-secondary)" }}>To Write Natural Language Queries, see pricing...</p>
+        </div> 
+
+         <button className="mt-3 bg-sb-amber hover:bg-sb-amber-dark text-white rounded px-4 py-2 text-sm font-medium transition-colors">
+          See Pricing
+        </button>
+        
       </div>
     </div>
   );
