@@ -10,7 +10,7 @@
  * License: Apache License 2.0 (see LICENSE file for details)
  * Copyright (c) 2025-Present Archetype Dynamics, Inc.
  * File Description:
- *    Contains the Navbar component with responsive navigation, dropdowns, and dynamic center content.
+ *    Contains the top Navbar component
  * =================================================
  **/
 
@@ -32,6 +32,9 @@ const Navbar: React.FC = () => {
   
   const { isAuthenticated, isLoading } = useKindeAuth();
   const location = useLocation();
+
+  // Check if we're in dashboard or any of its sub-routes
+  const isDashboardRoute = location.pathname.startsWith('/dashboard');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -90,159 +93,165 @@ const Navbar: React.FC = () => {
 
   return (
     <>
-      <nav
-        className={`fixed w-full z-50 transition-all duration-300 text-sb-cream dark:text-sb-light ${
-          isScrolled ? 'opacity-0 pointer-events-none' : 'opacity-100'
-        }`}
-        style={{ color: 'var(--text-primary)' }}
-      >
-        <div className="container py-4">
-          <div className="flex items-center justify-between">
-            {/* Logo */}
-            <a href="/" className="flex items-center space-x-2">
-              <span className="font-bold text-xl">
-                <span className="text-[var(--logo-primary)]">Ostrich</span>
-                <span className="text-[var(--logo-secondary)]">DB</span>
-              </span>
-            </a>
-
-            {/* Desktop Navigation & Actions */}
-            <div className="flex items-center justify-end">
-              {/* Desktop Navigation - Only show on home page */}
-              {location.pathname === '/' && (
-                <div className="hidden md:flex items-center space-x-8 mr-8">
-                  {navLinks.map((link) => (
-                    <div
-                      key={link.label}
-                      className="relative"
-                      onMouseEnter={() =>
-                        link.isDropdown && setActiveDropdown(link.label)
-                      }
-                      onMouseLeave={() => setActiveDropdown(null)}
-                    >
-                      <button 
-                        className="flex items-center space-x-1 transition-colors"
-                        style={{ color: 'var(--text-primary)' }}
-                      >
-                        <span>{link.label}</span>
-                        {link.isDropdown && <ChevronDown size={16} />}
-                      </button>
-                      {link.isDropdown && renderDropdown(link)}
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Action Buttons */}
-              <div className="hidden md:flex items-center space-x-4">
-                <ThemeToggle />
-                <a
-                  href="https://github.com/Archetype-Dynamics/OstrichDB.com"
-                  target="_blank"
-                  className="text-sb-gray hover:text-white transition-colors"
-                  style={{ color: 'var(--text-secondary)' }}
-                >
-                  <Github size={20} />
-                </a>
-                
-                {/* Conditional rendering based on authentication */}
-                {!isLoading && (
-                  isAuthenticated ? <ProfileDropdown /> : <AuthButtons />
-                )}
-              </div>
-
-              {/* Mobile Menu Button */}
-              <div className="md:hidden flex items-center space-x-2">
-                <ThemeToggle />
-                {!isLoading && isAuthenticated && <ProfileDropdown />}
-                <button 
-                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                  style={{ color: 'var(--text-primary)' }}
-                >
-                  {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile Menu */}
-        <div
-          className={`md:hidden absolute w-full transition-all duration-300 ease-in-out ${
-            mobileMenuOpen
-              ? "max-h-[80vh] opacity-100"
-              : "max-h-0 opacity-0 invisible"
-          } overflow-hidden`}
-          style={{ backgroundColor: 'var(--bg-secondary)' }}
+      {!isDashboardRoute && (
+        <nav
+          className={`fixed w-full z-50 transition-all duration-300 text-sb-cream dark:text-sb-light ${
+            isScrolled ? 'opacity-0 pointer-events-none' : 'opacity-100'
+          }`}
+          style={{ color: 'var(--text-primary)' }}
         >
-          <div className="container py-4 space-y-4">
-            {/* Mobile Navigation - Only show on home page */}
-            {location.pathname === '/' && navLinks.map((link) => (
-              <div key={link.label} className="py-2">
-                <button
-                  onClick={() =>
-                    link.isDropdown
-                      ? toggleDropdown(link.label)
-                      : setMobileMenuOpen(false)
-                  }
-                  className="flex items-center justify-between w-full text-left"
-                  style={{ color: 'var(--text-primary)' }}
-                >
-                  <span>{link.label}</span>
-                  {link.isDropdown && (
-                    <ChevronDown
-                      size={16}
-                      className={`transition-transform ${
-                        activeDropdown === link.label ? "rotate-180" : ""
-                      }`}
-                    />
-                  )}
-                </button>
-
-                {link.isDropdown && (
-                  <div
-                    className={`mt-2 pl-4 space-y-2 transition-all duration-200 ${
-                      activeDropdown === link.label ? "block" : "hidden"
-                    }`}
-                  >
-                    {link.dropdownItems?.map((item) => (
-                      <a
-                        key={item.label}
-                        href={item.href}
-                        className="block py-2 text-sm hover:opacity-80"
-                        style={{ color: 'var(--text-secondary)' }}
+          <div className="container py-4">
+            <div className="flex items-center justify-between">
+              {/* Logo */}
+              <a href="/" className="flex items-center space-x-2">
+                <span className="font-bold text-xl">
+                  <span className="text-[var(--logo-primary)]">Ostrich</span>
+                  <span className="text-[var(--logo-secondary)]">DB</span>
+                </span>
+              </a>
+  
+              {/* Desktop Navigation & Actions */}
+              <div className="flex items-center justify-end ml-auto">
+                {/* Desktop Navigation - Only show on home page */}
+                {location.pathname === '/' && (
+                  <div className="hidden md:flex items-center space-x-8 mr-8">
+                    {navLinks.map((link) => (
+                      <div
+                        key={link.label}
+                        className="relative"
+                        onMouseEnter={() =>
+                          link.isDropdown && setActiveDropdown(link.label)
+                        }
+                        onMouseLeave={() => setActiveDropdown(null)}
                       >
-                        {item.label}
-                      </a>
+                        <button 
+                          className="flex items-center space-x-1 transition-colors"
+                          style={{ color: 'var(--text-primary)' }}
+                        >
+                          <span>{link.label}</span>
+                          {link.isDropdown && <ChevronDown size={16} />}
+                        </button>
+                        {link.isDropdown && renderDropdown(link)}
+                      </div>
                     ))}
                   </div>
                 )}
+  
+                {/* Action Buttons */}
+                <div className="hidden md:flex items-center space-x-4">
+                  <ThemeToggle />
+                  <a
+                    href="https://github.com/Archetype-Dynamics/OstrichDB.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sb-gray hover:text-white transition-colors"
+                    style={{ color: 'var(--text-secondary)' }}
+                    title="View source on GitHub"
+                  >
+                    <Github size={20} />
+                  </a>
+                  
+                  {/* Conditional rendering based on authentication */}
+                  {!isLoading && (
+                    isAuthenticated ? <ProfileDropdown /> : <AuthButtons />
+                  )}
+                </div>
+  
+                {/* Mobile Menu Button */}
+                <div className="md:hidden flex items-center space-x-2">
+                  <ThemeToggle />
+                  {!isLoading && isAuthenticated && <ProfileDropdown />}
+                  <button 
+                    onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                    style={{ color: 'var(--text-primary)' }}
+                  >
+                    {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                  </button>
+                </div>
               </div>
-            ))}
-            
-            {/* Mobile Auth Section */}
-            {!isLoading && !isAuthenticated && (
-              <div className="pt-4 border-t border-gray-600">
-                <AuthButtons />
-              </div>
-            )}
+            </div>
           </div>
-        </div>
-      </nav>
-
-      {/* Scroll to Top Button */}
-      <button
-        onClick={scrollToTop}
-        className={`fixed right-6 bottom-6 z-50 w-12 h-12 rounded-full bg-sb-amber hover:bg-sb-amber-dark shadow-lg transition-all duration-300 flex items-center justify-center ${
-          showScrollToTop ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
-        }`}
-        style={{
-          color: 'var(--text-primary)'
-        }}
-        aria-label="Scroll to top"
-      >
-        <ArrowUp size={20} />
-      </button>
+  
+          {/* Mobile Menu */}
+          <div
+            className={`md:hidden absolute w-full transition-all duration-300 ease-in-out ${
+              mobileMenuOpen
+                ? "max-h-[80vh] opacity-100"
+                : "max-h-0 opacity-0 invisible"
+            } overflow-hidden`}
+            style={{ backgroundColor: 'var(--bg-secondary)' }}
+          >
+            <div className="container py-4 space-y-4">
+              {/* Mobile Navigation - Only show on home page */}
+              {location.pathname === '/' && navLinks.map((link) => (
+                <div key={link.label} className="py-2">
+                  <button
+                    onClick={() =>
+                      link.isDropdown
+                        ? toggleDropdown(link.label)
+                        : setMobileMenuOpen(false)
+                    }
+                    className="flex items-center justify-between w-full text-left"
+                    style={{ color: 'var(--text-primary)' }}
+                  >
+                    <span>{link.label}</span>
+                    {link.isDropdown && (
+                      <ChevronDown
+                        size={16}
+                        className={`transition-transform ${
+                          activeDropdown === link.label ? "rotate-180" : ""
+                        }`}
+                      />
+                    )}
+                  </button>
+  
+                  {link.isDropdown && (
+                    <div
+                      className={`mt-2 pl-4 space-y-2 transition-all duration-200 ${
+                        activeDropdown === link.label ? "block" : "hidden"
+                      }`}
+                    >
+                      {link.dropdownItems?.map((item) => (
+                        <a
+                          key={item.label}
+                          href={item.href}
+                          className="block py-2 text-sm hover:opacity-80"
+                          style={{ color: 'var(--text-secondary)' }}
+                        >
+                          {item.label}
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+              
+              {/* Mobile Auth Section */}
+              {!isLoading && !isAuthenticated && (
+                <div className="pt-4 border-t border-gray-600">
+                  <AuthButtons />
+                </div>
+              )}
+            </div>
+          </div>
+        </nav>
+      )}
+  
+      {/* Scroll to Top Button - Only show on home page */}
+      {!isDashboardRoute && (
+        <button
+          onClick={scrollToTop}
+          className={`fixed right-6 bottom-6 z-50 w-12 h-12 rounded-full bg-sb-amber hover:bg-sb-amber-dark shadow-lg transition-all duration-300 flex items-center justify-center ${
+            showScrollToTop ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
+          }`}
+          style={{
+            color: 'var(--text-primary)'
+          }}
+          aria-label="Scroll to top"
+        >
+          <ArrowUp size={20} />
+        </button>
+      )}
     </>
   );
 };
