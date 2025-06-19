@@ -196,9 +196,9 @@ export function DashboardSideNavbar() {
         },
         { 
           icon: IconMessage, 
-          label: 'Natural Language Query',
+          label: 'Natural Language Query Proccessor',
           onClick: () => {
-            navigate(`/dashboard/projects/${encodeURIComponent(projectName!)}/collections/${encodeURIComponent(collectionName!)}/nlq`);
+            navigate(`/dashboard/projects/${encodeURIComponent(projectName!)}/nlp`);
             setActive(5);
           }
         }
