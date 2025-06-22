@@ -36,6 +36,7 @@ import NotFound from './components/NotFound';
 import  DashboardTopNavbar  from "./components/layout/DashboardTopNavBar";
 import { ThemeProvider } from "./context/ThemeContext";
 import NLPInterface from "./components/dashboard/NLP";
+import Contributors from "./pages/contributors";
 
 // Kinde authentication .env variables
 const clientId = import.meta.env.VITE_KINDE_CLIENT_ID;
@@ -144,6 +145,23 @@ function App() {
         <ThemeProvider>
           <Router>
             <Routes>
+              {/* Contributors Page - MOVED INSIDE Routes */}
+              <Route 
+                path="/contributors" 
+                element={
+                  <div
+                    className="min-h-screen flex flex-col"
+                    style={{ backgroundColor: "var(--bg-primary)" }}
+                  >
+                    <Navbar />
+                    <main className="flex-1">
+                      <Contributors />
+                    </main>
+                    <Footer />
+                  </div>
+                } 
+              />
+
               {/* Dashboard - Project Selection */}
               <Route 
                 path="/dashboard/*" 

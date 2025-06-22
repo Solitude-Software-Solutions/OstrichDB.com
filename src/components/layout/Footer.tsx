@@ -28,14 +28,21 @@ const Footer: React.FC = () => {
       <div className="w-full max-w-6xl px-4">
         {/* Main footer content */}
         <div className="flex flex-col md:flex-row justify-between items-center py-6 gap-4">
-          {/* Left side - Documentation */}
-          <div className="flex items-center">
+          {/* Left side - Documentation and Contributors */}
+          <div className="flex items-center gap-4">
             <a
               href="#"
               style={{ color: "var(--text-secondary)" }}
               className="hover:text-white text-sm transition-colors"
             >
               Documentation
+            </a>
+            <a
+              href="/contributors"
+              style={{ color: "var(--text-secondary)" }}
+              className="hover:text-white text-sm transition-colors"
+            >
+              Contributors
             </a>
           </div>
 
