@@ -16,12 +16,7 @@
 
 import React, { useEffect, useState } from "react";
 import { KindeProvider } from "@kinde-oss/kinde-auth-react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  useParams,
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useParams } from "react-router-dom";
 import { createTheme, MantineProvider } from "@mantine/core";
 import "@mantine/core/styles.css";
 
@@ -32,15 +27,15 @@ import Hero from "./components/home/Hero";
 import CTA from "./components/home/CTA";
 import Features from "./components/home/Features";
 import CodeShowcase from "./components/home/InteractiveShowcase";
-import Pricing from "./components/home/Pricing";
 import CodeComparison from "./components/home/ProblemSolution";
 import Dashboard from "./pages/dashboard";
 import CollectionsComponent from "./components/dashboard/CollectionsComponent";
 import CollectionOverview from "./components/dashboard/CollectionOverview";
 import ClusterEditor from "./components/dashboard/ClusterEditor";
-import NotFound from "./components/NotFound";
-// import  DashboardTopNavbar  from "./components/layout/DashboardTopNavBar";
+import NotFound from './components/NotFound';
+import  DashboardTopNavbar  from "./components/layout/DashboardTopNavBar";
 import { ThemeProvider } from "./context/ThemeContext";
+import NLPInterface from "./components/dashboard/NLP";
 
 // Kinde authentication .env variables
 const clientId = import.meta.env.VITE_KINDE_CLIENT_ID;
@@ -61,7 +56,7 @@ const theme = createTheme({
       "#7e22ce",
       "#6b21a8",
       "#581c87",
-      "#4c1d95",
+      "#4c1d95"
     ],
   },
   primaryColor: "sbPurple",
@@ -78,52 +73,33 @@ const theme = createTheme({
 });
 
 // Dashboard Layout Component
-const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => (
-  <div
-    className="min-h-screen flex flex-col"
-    style={{ backgroundColor: "var(--bg-primary)" }}
-  >
+const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <div className="min-h-screen flex flex-col" style={{ backgroundColor: "var(--bg-primary)" }}>
     <DashboardTopNavbar />
-    <div className="flex flex-1" style={{ paddingTop: "64px" }}>
-      {" "}
-      {/* Add padding for top navbar */}
+    <div className="flex flex-1" style={{ paddingTop: '64px' }}> {/* Add padding for top navbar */}
       <DashboardSideNavbar />
-      <main className="flex-1" style={{ marginLeft: "80px" }}>
+      <main className="flex-1" style={{ marginLeft: '80px' }}> 
         {children}
       </main>
     </div>
   </div>
 );
 
-// Placeholder components for future implementation
+// Placeholder components for manual query editor
 const ManualQueryEditor: React.FC = () => {
-  const { projectName, collectionName } = useParams<{
-    projectName: string;
-    collectionName: string;
-  }>();
-
+  
   return (
     <div className="flex flex-col items-center justify-center mt-40">
       <div className="text-center">
-        <h1
-          className="text-3xl font-bold mb-4"
-          style={{ color: "var(--text-primary)" }}
-        >
+        <h1 className="text-3xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
           Manual Query Editor
         </h1>
-        <p className="text-lg mb-2" style={{ color: "var(--text-secondary)" }}>
-          Project: {projectName}
-        </p>
-        <p className="text-lg mb-6" style={{ color: "var(--text-secondary)" }}>
-          Collection: {collectionName}
-        </p>
+    
         <div className="text-6xl mb-4">💻</div>
-        <p className="text-lg" style={{ color: "var(--text-secondary)" }}>
-          Manual query editor coming soon...
+        <p className="text-lg" style={{ color: 'var(--text-secondary)' }}>
+          Manual query editor interface coming soon...
         </p>
-        <p className="text-sm mt-4" style={{ color: "var(--text-secondary)" }}>
+        <p className="text-sm mt-4" style={{ color: 'var(--text-secondary)' }}>
           Write and execute OstrichDB queries directly.
         </p>
       </div>
@@ -131,38 +107,6 @@ const ManualQueryEditor: React.FC = () => {
   );
 };
 
-const NaturalLanguageQuery: React.FC = () => {
-  const { projectName, collectionName } = useParams<{
-    projectName: string;
-    collectionName: string;
-  }>();
-
-  return (
-    <div className="flex flex-col items-center justify-center mt-40">
-      <div className="text-center">
-        <h1
-          className="text-3xl font-bold mb-4"
-          style={{ color: "var(--text-primary)" }}
-        >
-          Natural Language Query
-        </h1>
-        <p className="text-lg mb-2" style={{ color: "var(--text-secondary)" }}>
-          Project: {projectName}
-        </p>
-        <p className="text-lg mb-6" style={{ color: "var(--text-secondary)" }}>
-          Collection: {collectionName}
-        </p>
-        <div className="text-6xl mb-4">🗣️</div>
-        <p className="text-lg" style={{ color: "var(--text-secondary)" }}>
-          Natural language query interface coming soon...
-        </p>
-        <p className="text-sm mt-4" style={{ color: "var(--text-secondary)" }}>
-          Ask questions about your data in plain English.
-        </p>
-      </div>
-    </div>
-  );
-};
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -201,63 +145,64 @@ function App() {
           <Router>
             <Routes>
               {/* Dashboard - Project Selection */}
-              <Route
-                path="/dashboard/*"
+              <Route 
+                path="/dashboard/*" 
                 element={
                   <DashboardLayout>
                     <Dashboard />
                   </DashboardLayout>
-                }
+                } 
               />
-
+              
               {/* Collections for a specific project */}
-              <Route
-                path="/dashboard/projects/:projectName/collections"
+              <Route 
+                path="/dashboard/projects/:projectName/collections" 
                 element={
                   <DashboardLayout>
                     <CollectionsComponent />
                   </DashboardLayout>
-                }
+                } 
               />
-
+              
               {/* Collection Overview - Default view when entering a collection */}
-              <Route
-                path="/dashboard/projects/:projectName/collections/:collectionName"
+              <Route 
+                path="/dashboard/projects/:projectName/collections/:collectionName" 
                 element={
                   <DashboardLayout>
                     <CollectionOverview />
                   </DashboardLayout>
-                }
+                } 
               />
-
+              
               {/* Collection Management Tools */}
-              <Route
-                path="/dashboard/projects/:projectName/collections/:collectionName/cluster-editor/:clusterName?"
+              <Route 
+                path="/dashboard/projects/:projectName/collections/:collectionName/cluster-editor/:clusterName?" 
                 element={
                   <DashboardLayout>
                     <ClusterEditor />
                   </DashboardLayout>
-                }
+                } 
               />
-
-              <Route
-                path="/dashboard/projects/:projectName/collections/:collectionName/manual-query"
+              
+              <Route 
+                path="/dashboard/projects/:projectName/manual-query" 
                 element={
+                  
                   <DashboardLayout>
                     <ManualQueryEditor />
                   </DashboardLayout>
-                }
+                } 
               />
-
-              <Route
-                path="/dashboard/projects/:projectName/collections/:collectionName/nlq"
+              
+              <Route 
+                path="/dashboard/projects/:projectName/nlp" 
                 element={
                   <DashboardLayout>
-                    <NaturalLanguageQuery />
+                    <NLPInterface />
                   </DashboardLayout>
-                }
+                } 
               />
-
+              
               {/* Home page */}
               <Route
                 path="/"
@@ -278,21 +223,7 @@ function App() {
                   </div>
                 }
               />
-              <Route
-                path="/pricing"
-                element={
-                  <div
-                    className="min-h-screen flex flex-col"
-                    style={{ backgroundColor: "var(--bg-primary)" }}
-                  >
-                    <Navbar />
-                    <main className="flex-1">
-                      <Pricing />
-                    </main>
-                    <Footer />
-                  </div>
-                }
-              />
+              
               {/* 404 Not Found */}
               <Route path="*" element={<NotFound />} />
             </Routes>

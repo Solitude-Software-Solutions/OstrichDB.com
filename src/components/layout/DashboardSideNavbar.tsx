@@ -62,19 +62,31 @@ export function DashboardSideNavbar() {
   const location = useLocation();
   const { logout } = useKindeAuth();
   
-  // Get URL parameters for collection management
+
   const { projectName, collectionName } = useParams<{
     projectName: string;
     collectionName: string;
   }>();
 
-  // Determine current dashboard state based on URL
+
+  const getProjectNameFromPath = () => {
+    const path = location.pathname;
+    const match = path.match(/\/projects\/([^\/]+)/);
+    return match ? decodeURIComponent(match[1]) : projectName;
+  };
+
+  const currentProjectName = getProjectNameFromPath();
+
+
   const getDashboardState = () => {
     const path = location.pathname;
     
-    // Check if we're in collection management (any of the 4 views)
     if (path.includes('/collections/') && collectionName) {
       return 'collection-management';
+    }
+
+    if (path.includes('/projects/') && (path.includes('/nlp') || path.includes('/manual-query'))) {
+      return 'project-tools';
     }
     
     if (path.includes('/collections')) {
@@ -84,27 +96,26 @@ export function DashboardSideNavbar() {
     return 'projects';
   };
 
-  // Get current collection management tool
+
   const getCurrentCollectionTool = () => {
     const path = location.pathname;
-    if (path.endsWith('/cluster-editor')) return 'cluster-editor';
-    if (path.endsWith('/manual-query')) return 'manual-query';
-    if (path.endsWith('/nlq')) return 'nlq';
-    return 'overview'; // Default to overview
+    if (path.includes('/cluster-editor')) return 'cluster-editor';
+    if (path.includes('/manual-query')) return 'manual-query';
+    if (path.includes('/nlp')) return 'nlp';
+    return 'overview';
   };
 
   const [active, setActive] = useState(0);
   const dashboardState = getDashboardState();
   const currentTool = getCurrentCollectionTool();
 
-  // Update active state when location changes
   useEffect(() => {
     const path = location.pathname;
     
     if (path === '/') {
       setActive(0);
     } else if (dashboardState === 'projects') {
-      // In projects view
+    
       if (path.includes('/account')) {
         setActive(1);
       } else if (path.includes('/documentation')) {
@@ -112,30 +123,34 @@ export function DashboardSideNavbar() {
       } else {
         setActive(0); // Default to Home
       }
-    } else if (dashboardState === 'collections') {
-      // In collections list view
+    } else if (dashboardState === 'collections' || dashboardState === 'project-tools') {
+    
       if (path.includes('/account')) {
         setActive(0);
       } else if (path.includes('/collaborators')) {
         setActive(2);
       } else if (path.includes('/documentation')) {
+        setActive(5); // Adjusted for additional tools
+      } else if (currentTool === 'manual-query') {
         setActive(3);
+      } else if (currentTool === 'nlp') {
+        setActive(4);
       } else {
         setActive(0); // Default to Home
       }
     } else if (dashboardState === 'collection-management') {
-      // In collection management views
+
       if (path.includes('/account')) {
         setActive(0);
       } else if (path.includes('/collaborators')) {
         setActive(2);
       } else if (path.includes('/documentation')) {
-        setActive(6); // Adjusted for collection management tools
+        setActive(6); 
       } else if (currentTool === 'cluster-editor') {
         setActive(3);
       } else if (currentTool === 'manual-query') {
         setActive(4);
-      } else if (currentTool === 'nlq') {
+      } else if (currentTool === 'nlp') {
         setActive(5);
       } else {
         setActive(0); // Default to Home
@@ -143,7 +158,7 @@ export function DashboardSideNavbar() {
     }
   }, [location.pathname, dashboardState, currentTool]);
 
-  // Navigation for different dashboard states
+
   const getNavigation = () => {
     const baseNavigation = [
       { 
@@ -157,12 +172,12 @@ export function DashboardSideNavbar() {
     ];
 
     if (dashboardState === 'collection-management') {
-      // Collection management view - show project status + collection tools
+      
       return [
         ...baseNavigation,
         { 
           icon: IconHome2, // Will use custom element
-          label: `Project Status - ${projectName}`,
+          label: `Project Status - ${currentProjectName}`,
           onClick: () => {
             console.log('Show project status');
             setActive(1);
@@ -177,12 +192,12 @@ export function DashboardSideNavbar() {
             setActive(2);
           }
         },
-        // Collection Management Tools Section
+      
         { 
           icon: IconBraces, 
           label: 'Cluster Editor',
           onClick: () => {
-            navigate(`/dashboard/projects/${encodeURIComponent(projectName!)}/collections/${encodeURIComponent(collectionName!)}/cluster-editor`);
+            navigate(`/dashboard/projects/${encodeURIComponent(currentProjectName!)}/collections/${encodeURIComponent(collectionName!)}/cluster-editor`);
             setActive(3);
           }
         },
@@ -190,26 +205,26 @@ export function DashboardSideNavbar() {
           icon: IconCode, 
           label: 'Manual Query Editor',
           onClick: () => {
-            navigate(`/dashboard/projects/${encodeURIComponent(projectName!)}/collections/${encodeURIComponent(collectionName!)}/manual-query`);
+            navigate(`/dashboard/projects/${encodeURIComponent(currentProjectName!)}/collections/${encodeURIComponent(collectionName!)}/manual-query`);
             setActive(4);
           }
         },
         { 
           icon: IconMessage, 
-          label: 'Natural Language Query Proccessor',
+          label: 'Natural Language Query Processor',
           onClick: () => {
-            navigate(`/dashboard/projects/${encodeURIComponent(projectName!)}/nlp`);
+            navigate(`/dashboard/projects/${encodeURIComponent(currentProjectName!)}/nlp`);
             setActive(5);
           }
         }
       ];
-    } else if (dashboardState === 'collections') {
-      // Collections list view
+    } else if (dashboardState === 'collections' || dashboardState === 'project-tools') {
+
       return [
         ...baseNavigation,
         { 
           icon: IconHome2,
-          label: `Project Status - ${projectName}`,
+          label: `Project Status - ${currentProjectName}`,
           onClick: () => {
             console.log('Show project status');
             setActive(1);
@@ -222,6 +237,23 @@ export function DashboardSideNavbar() {
           onClick: () => {
             console.log('Navigate to collaborators');
             setActive(2);
+          }
+        },
+    
+        { 
+          icon: IconCode, 
+          label: 'Manual Query Editor',
+          onClick: () => {
+            navigate(`/dashboard/projects/${encodeURIComponent(currentProjectName!)}/manual-query`);
+            setActive(3);
+          }
+        },
+        { 
+          icon: IconMessage, 
+          label: 'Natural Language Query Processor',
+          onClick: () => {
+            navigate(`/dashboard/projects/${encodeURIComponent(currentProjectName!)}/nlp`);
+            setActive(4);
           }
         }
       ];
@@ -261,8 +293,8 @@ export function DashboardSideNavbar() {
         <Stack justify="center" gap={0}>
           {links}
           
-          {/* Visual separator for collection management tools */}
-          {dashboardState === 'collection-management' && links.length > 3 && (
+          {/* Visual separator for query tools */}
+          {(dashboardState === 'collection-management' || dashboardState === 'collections' || dashboardState === 'project-tools') && links.length > 3 && (
             <div className="my-2">
               <div 
                 className="w-8 h-px mx-auto"

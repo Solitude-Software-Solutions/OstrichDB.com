@@ -1,17 +1,17 @@
-// /**
-//  * =================================================
-//  * Author: Feda Elvis
-//  * GitHub: @FedaElvis
-//  *           
-//  * Contributors:
-//  *           @SchoolyB
-//  *
-//  * License: Apache License 2.0 (see LICENSE file for details)
-//  * Copyright (c) 2025-Present Archetype Dynamics, Inc.
-//  * File Description:
-//  *    The component for managing a users projects in the dashboard.
-//  * =================================================
-//  **/
+/**
+ * =================================================
+ * Author: Feda Elvis
+ * GitHub: @FedaElvis
+ *           
+ * Contributors:
+ *           @SchoolyB
+ *
+ * License: Apache License 2.0 (see LICENSE file for details)
+ * Copyright (c) 2025-Present Archetype Dynamics, Inc.
+ * File Description:
+ *    The component for managing a users projects in the dashboard.
+ * =================================================
+ **/
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
