@@ -1,16 +1,16 @@
-// /**
-//  * =================================================
-//  * Author: Marshall A Burns
-//  * GitHub: @SchoolyB
-//  *           
-//  * Contributors:
-//  *
-//  * License: Apache License 2.0 (see LICENSE file for details)
-//  * Copyright (c) 2025-Present Archetype Dynamics, Inc.
-//  * File Description:
-//  *    This file contains the NLP interface component
-//  * =================================================
-//  **/
+/**
+ * =================================================
+ * Author: Marshall A Burns
+ * GitHub: @SchoolyB
+ *           
+ * Contributors:
+ *
+ * License: Apache License 2.0 (see LICENSE file for details)
+ * Copyright (c) 2025-Present Archetype Dynamics, Inc.
+ * File Description:
+ *    This file contains the NLP interface component
+ * =================================================
+**/
  
 import React, { useState, useEffect, useRef } from 'react';
 import { Send, MessageSquare, CheckCircle, AlertTriangle, Loader2, X, Lightbulb, ArrowLeft, HelpCircle, Eye, Code } from 'lucide-react';
@@ -104,6 +104,8 @@ const NLPInterface = () => {
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [showRawResponse, setShowRawResponse] = useState(false);
   const [greeting, setGreeting] = useState('');
+  const [confirmationMessage, setConfirmationMessage] = useState('');
+  const [showConfirmationMessage, setShowConfirmationMessage] = useState(false);
   
   const { getToken, user, isAuthenticated } = useKindeAuth();
 
@@ -111,6 +113,12 @@ const NLPInterface = () => {
   const { displayText: typedSummary, isTyping } = useTypewriter(
     showConfirmation && nlpResponse?.summary ? nlpResponse.summary : '', 
     25
+  );
+
+  // Typewriter effect for confirmation message
+  const { displayText: typedConfirmation, isTyping: isTypingConfirmation } = useTypewriter(
+    showConfirmationMessage ? confirmationMessage : '', 
+    30
   );
 
   // Set greeting when component mounts
@@ -176,7 +184,7 @@ const NLPInterface = () => {
         setNlpResponse(parsedResponse);
         setShowConfirmation(true);
       } catch (parseError) {
-        // If JSON parsing fails, treat as plain text (backward compatibility)
+        // If JSON parsing fails, treat as plain text
         setNlpResponse({ summary: responseText });
         setShowConfirmation(true);
       }
@@ -189,17 +197,22 @@ const NLPInterface = () => {
 
   const handleConfirmAction = async () => {
     if (!nlpResponse) return;
-
+  
     setIsConfirming(true);
     setError('');
-
+  
     try {
       const token = await getToken();
       
       if (!token) {
         throw new Error('No authentication token available');
       }
-
+  
+      // Show immediate acknowledgment
+      setConfirmationMessage("Perfect! I'll take care of that for you right away... 🚀");
+      setShowConfirmationMessage(true);
+      setShowConfirmation(false); // Hide the confirmation dialog
+  
       const response = await fetch(`http://localhost:8042/api/v1/projects/${projectName}/nlp/finalize`, {
         method: 'POST',
         headers: {
@@ -208,23 +221,36 @@ const NLPInterface = () => {
         },
         body: JSON.stringify(nlpResponse)
       });
-
+  
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
+  
       const result = await response.text();
+      
+      // Update to success message
+      setConfirmationMessage("All done! ✨ Your request has been completed successfully.");
       setFinalResult(result);
-      setShowConfirmation(false);
+      
+      // Clear the prompt and response
       setPrompt('');
       setNlpResponse(null);
+  
+      // Auto-hide the confirmation message after 5 seconds
+      setTimeout(() => {
+        setShowConfirmationMessage(false);
+        setConfirmationMessage('');
+      }, 5000);
+  
     } catch (err) {
       setError(`Failed to execute action: ${err.message}`);
+      setConfirmationMessage('');
+      setShowConfirmationMessage(false);
     } finally {
       setIsConfirming(false);
     }
   };
-
+  
   const handleCancel = () => {
     setShowConfirmation(false);
     setNlpResponse(null);
@@ -276,6 +302,31 @@ const NLPInterface = () => {
               </button>
             </div>
           </div>
+          
+          {showConfirmationMessage && (
+            <div className="mt-4 bg-blue-900/20 border border-blue-500/30 rounded-lg p-6">
+              <div className="flex items-center gap-3">
+                <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center">
+                  {isConfirming ? (
+                    <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <span className="text-white text-sm">✓</span>
+                  )}
+                </div>
+                <div>
+                  <div className="text-blue-400 font-medium text-lg">
+                    {typedConfirmation}
+                    {isTypingConfirmation && <span className="animate-pulse">|</span>}
+                  </div>
+                  {isConfirming && (
+                    <div className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
+                      Processing your request...
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Error Message */}
           {error && (
@@ -467,7 +518,6 @@ const NLPInterface = () => {
         </div>
       </div>
 
-      {/* Help Modal - keeping existing implementation */}
       {showHelpModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           {/* ... existing help modal content ... */}
