@@ -85,12 +85,8 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
   </div>
 );
 
-// Placeholder components for future implementation
+// Placeholder components for manual query editor
 const ManualQueryEditor: React.FC = () => {
-  const { projectName, collectionName } = useParams<{ 
-    projectName: string; 
-    collectionName: string; 
-  }>();
   
   return (
     <div className="flex flex-col items-center justify-center mt-40">
@@ -98,12 +94,7 @@ const ManualQueryEditor: React.FC = () => {
         <h1 className="text-3xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
           Manual Query Editor
         </h1>
-        <p className="text-lg mb-2" style={{ color: 'var(--text-secondary)' }}>
-          Project: {projectName}
-        </p>
-        <p className="text-lg mb-6" style={{ color: 'var(--text-secondary)' }}>
-          Collection: {collectionName}
-        </p>
+    
         <div className="text-6xl mb-4">💻</div>
         <p className="text-lg" style={{ color: 'var(--text-secondary)' }}>
           Manual query editor interface coming soon...
@@ -194,8 +185,9 @@ function App() {
               />
               
               <Route 
-                path="/dashboard/projects/:projectName/collections/:collectionName/manual-query" 
+                path="/dashboard/projects/:projectName/manual-query" 
                 element={
+                  
                   <DashboardLayout>
                     <ManualQueryEditor />
                   </DashboardLayout>
