@@ -1703,6 +1703,7 @@ const ClusterEditor: React.FC = () => {
               backgroundColor: "var(--bg-primary)",
               borderColor: "var(--border-color)",
             }}
+            onMouseLeave={() => {setShowHelpModal(false)}}
           >
             <div className="flex items-center justify-between mb-6">
               <h2
