@@ -16,23 +16,6 @@ import { NavLink } from "../types";
 
 export const navLinks: NavLink[] = [
   {
-    label: "Product",
-    href: "#",
-    isDropdown: true,
-    dropdownItems: [
-      {
-        label: "Database",
-        href: "#database",
-        description: "Postgres database with realtime capabilities",
-      },
-      {
-        label: "Auth",
-        href: "#auth",
-        description: "User management and authentication",
-      },
-    ],
-  },
-  {
     label: "Developers",
     href: "#",
     isDropdown: true,
