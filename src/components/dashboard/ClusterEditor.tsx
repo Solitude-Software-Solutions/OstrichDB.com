@@ -1703,7 +1703,9 @@ const ClusterEditor: React.FC = () => {
               backgroundColor: "var(--bg-primary)",
               borderColor: "var(--border-color)",
             }}
-            onMouseLeave={() => {setShowHelpModal(false)}}
+            onMouseLeave={() => {
+              setShowHelpModal(false);
+            }}
           >
             <div className="flex items-center justify-between mb-6">
               <h2
@@ -1885,7 +1887,9 @@ const ClusterEditor: React.FC = () => {
               backgroundColor: "var(--bg-primary)",
               borderColor: "var(--border-color)",
             }}
-            onMouseLeave={() => {setShowRawModal(false)}}
+            onMouseLeave={() => {
+              setShowRawModal(false);
+            }}
           >
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
@@ -2005,7 +2009,7 @@ const ClusterEditor: React.FC = () => {
 
       {/* Confirmation button */}
       {isEditMode && (
-        <div className="p-6 max-w-2xl mx-auto">
+        <div className="p-6 flex justify-center max-w-2xl mx-auto  ">
           <button
             onClick={
               isNewCluster
