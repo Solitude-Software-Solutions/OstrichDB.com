@@ -15,7 +15,14 @@
  **/
 
 import React, { useState, useEffect } from "react";
-import { ChevronDown, Menu, X, Github, ExternalLink, ArrowUp } from "lucide-react";
+import {
+  ChevronDown,
+  Menu,
+  X,
+  Github,
+  ExternalLink,
+  ArrowUp,
+} from "lucide-react";
 import { useKindeAuth } from "@kinde-oss/kinde-auth-react";
 import { useLocation } from "react-router-dom";
 import AuthButtons from "../common/AuthButtons";
@@ -29,18 +36,18 @@ const Navbar: React.FC = () => {
   const [showScrollToTop, setShowScrollToTop] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
-  
+
   const { isAuthenticated, isLoading } = useKindeAuth();
   const location = useLocation();
 
   // Check if we're in dashboard or any of its sub-routes
-  const isDashboardRoute = location.pathname.startsWith('/dashboard');
+  const isDashboardRoute = location.pathname.startsWith("/dashboard");
 
   useEffect(() => {
     const handleScroll = () => {
       const scrolled = window.scrollY > 10;
       setIsScrolled(scrolled);
-      
+
       // Show scroll to top button after scrolling 300px
       setShowScrollToTop(window.scrollY > 300);
     };
@@ -52,7 +59,7 @@ const Navbar: React.FC = () => {
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
-      behavior: 'smooth'
+      behavior: "smooth",
     });
   };
 
@@ -96,9 +103,9 @@ const Navbar: React.FC = () => {
       {!isDashboardRoute && (
         <nav
           className={`fixed w-full z-50 transition-all duration-300 text-sb-cream dark:text-sb-light ${
-            isScrolled ? 'opacity-0 pointer-events-none' : 'opacity-100'
+            isScrolled ? "opacity-0 pointer-events-none" : "opacity-100"
           }`}
-          style={{ color: 'var(--text-primary)' }}
+          style={{ color: "var(--text-primary)" }}
         >
           <div className="container py-4">
             <div className="flex items-center justify-between">
@@ -109,24 +116,25 @@ const Navbar: React.FC = () => {
                   <span className="text-[var(--logo-secondary)]">DB</span>
                 </span>
               </a>
-  
+
               {/* Desktop Navigation & Actions */}
               <div className="flex items-center justify-end ml-auto">
                 {/* Desktop Navigation - Only show on home page */}
-                {location.pathname === '/' && (
-                  <div className="hidden md:flex items-center space-x-8 mr-8">
+                {location.pathname === "/" && (
+                  <div className="hidden md:flex items-center space-x-8 mr-8  text-[var(--fixed-light-text)]">
                     {navLinks.map((link) => (
                       <div
                         key={link.label}
-                        className="relative"
+                        className="relative  
+                      "
                         onMouseEnter={() =>
                           link.isDropdown && setActiveDropdown(link.label)
                         }
                         onMouseLeave={() => setActiveDropdown(null)}
                       >
-                        <button 
+                        <button
                           className="flex items-center space-x-1 transition-colors"
-                          style={{ color: 'var(--text-primary)' }}
+                          style={{ color: "var(--text-primary)" }}
                         >
                           <span>{link.label}</span>
                           {link.isDropdown && <ChevronDown size={16} />}
@@ -136,7 +144,7 @@ const Navbar: React.FC = () => {
                     ))}
                   </div>
                 )}
-  
+
                 {/* Action Buttons */}
                 <div className="hidden md:flex items-center space-x-4">
                   <ThemeToggle />
@@ -145,25 +153,24 @@ const Navbar: React.FC = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-sb-gray hover:text-white transition-colors"
-                    style={{ color: 'var(--text-secondary)' }}
+                    style={{ color: "var(--text-secondary)" }}
                     title="View source on GitHub"
                   >
                     <Github size={20} />
                   </a>
-                  
+
                   {/* Conditional rendering based on authentication */}
-                  {!isLoading && (
-                    isAuthenticated ? <ProfileDropdown /> : <AuthButtons />
-                  )}
+                  {!isLoading &&
+                    (isAuthenticated ? <ProfileDropdown /> : <AuthButtons />)}
                 </div>
-  
+
                 {/* Mobile Menu Button */}
                 <div className="md:hidden flex items-center space-x-2">
                   <ThemeToggle />
                   {!isLoading && isAuthenticated && <ProfileDropdown />}
-                  <button 
+                  <button
                     onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                    style={{ color: 'var(--text-primary)' }}
+                    style={{ color: "var(--text-primary)" }}
                   >
                     {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
                   </button>
@@ -171,7 +178,7 @@ const Navbar: React.FC = () => {
               </div>
             </div>
           </div>
-  
+
           {/* Mobile Menu */}
           <div
             className={`md:hidden absolute w-full transition-all duration-300 ease-in-out ${
@@ -179,53 +186,54 @@ const Navbar: React.FC = () => {
                 ? "max-h-[80vh] opacity-100"
                 : "max-h-0 opacity-0 invisible"
             } overflow-hidden`}
-            style={{ backgroundColor: 'var(--bg-secondary)' }}
+            style={{ backgroundColor: "var(--bg-secondary)" }}
           >
             <div className="container py-4 space-y-4">
               {/* Mobile Navigation - Only show on home page */}
-              {location.pathname === '/' && navLinks.map((link) => (
-                <div key={link.label} className="py-2">
-                  <button
-                    onClick={() =>
-                      link.isDropdown
-                        ? toggleDropdown(link.label)
-                        : setMobileMenuOpen(false)
-                    }
-                    className="flex items-center justify-between w-full text-left"
-                    style={{ color: 'var(--text-primary)' }}
-                  >
-                    <span>{link.label}</span>
-                    {link.isDropdown && (
-                      <ChevronDown
-                        size={16}
-                        className={`transition-transform ${
-                          activeDropdown === link.label ? "rotate-180" : ""
-                        }`}
-                      />
-                    )}
-                  </button>
-  
-                  {link.isDropdown && (
-                    <div
-                      className={`mt-2 pl-4 space-y-2 transition-all duration-200 ${
-                        activeDropdown === link.label ? "block" : "hidden"
-                      }`}
+              {location.pathname === "/" &&
+                navLinks.map((link) => (
+                  <div key={link.label} className="py-2">
+                    <button
+                      onClick={() =>
+                        link.isDropdown
+                          ? toggleDropdown(link.label)
+                          : setMobileMenuOpen(false)
+                      }
+                      className="flex items-center justify-between w-full text-left"
+                      style={{ color: "var(--text-primary)" }}
                     >
-                      {link.dropdownItems?.map((item) => (
-                        <a
-                          key={item.label}
-                          href={item.href}
-                          className="block py-2 text-sm hover:opacity-80"
-                          style={{ color: 'var(--text-secondary)' }}
-                        >
-                          {item.label}
-                        </a>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-              
+                      <span>{link.label}</span>
+                      {link.isDropdown && (
+                        <ChevronDown
+                          size={16}
+                          className={`transition-transform ${
+                            activeDropdown === link.label ? "rotate-180" : ""
+                          }`}
+                        />
+                      )}
+                    </button>
+
+                    {link.isDropdown && (
+                      <div
+                        className={`mt-2 pl-4 space-y-2 transition-all duration-200 ${
+                          activeDropdown === link.label ? "block" : "hidden"
+                        }`}
+                      >
+                        {link.dropdownItems?.map((item) => (
+                          <a
+                            key={item.label}
+                            href={item.href}
+                            className="block py-2 text-sm hover:opacity-80"
+                            style={{ color: "var(--text-secondary)" }}
+                          >
+                            {item.label}
+                          </a>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+
               {/* Mobile Auth Section */}
               {!isLoading && !isAuthenticated && (
                 <div className="pt-4 border-t border-gray-600">
@@ -236,16 +244,18 @@ const Navbar: React.FC = () => {
           </div>
         </nav>
       )}
-  
+
       {/* Scroll to Top Button - Only show on home page */}
       {!isDashboardRoute && (
         <button
           onClick={scrollToTop}
           className={`fixed right-6 bottom-6 z-50 w-12 h-12 rounded-full bg-sb-amber hover:bg-sb-amber-dark shadow-lg transition-all duration-300 flex items-center justify-center ${
-            showScrollToTop ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
+            showScrollToTop
+              ? "opacity-100 translate-y-0"
+              : "opacity-0 translate-y-4 pointer-events-none"
           }`}
           style={{
-            color: 'var(--text-primary)'
+            color: "var(--text-primary)",
           }}
           aria-label="Scroll to top"
         >

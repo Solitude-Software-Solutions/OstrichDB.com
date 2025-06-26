@@ -4,7 +4,7 @@
 * GitHub: @Kasirocswell  
 * Contributors: 
 *           @SchoolyB
-            @GaleSSalazar
+*           @galessalazar
 * 
 * License: Apache License 2.0 (see LICENSE file for details)
 * Copyright (c) 2025-Present Archetype Dynamics, Inc.
@@ -29,6 +29,7 @@
   /* Cream color for "Ostrich" in dark mode */
   --logo-secondary: #e08a2c;
   /* Amber color for "DB" in dark mode - unchanged */
+  --fixed-light-text: #eae3d1;
 }
 
 [data-theme="light"] {
@@ -139,15 +140,19 @@ body {
 
 /* Custom gradients */
 .hero-gradient {
-  background: radial-gradient(circle at 50% -20%,
-      rgba(234, 227, 209, 0.15),
-      transparent 70%);
+  background: radial-gradient(
+    circle at 50% -20%,
+    rgba(234, 227, 209, 0.15),
+    transparent 70%
+  );
 }
 
 .bg-grid {
-  background-image: linear-gradient(to right,
+  background-image: linear-gradient(
+      to right,
       var(--border-color) 1px,
-      transparent 1px),
+      transparent 1px
+    ),
     linear-gradient(to bottom, var(--border-color) 1px, transparent 1px);
   background-size: 20px 20px;
 }
@@ -226,7 +231,6 @@ html {
 
 /* Reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
-
   *,
   *::before,
   *::after {
