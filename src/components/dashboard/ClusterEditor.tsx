@@ -2011,7 +2011,7 @@ const ClusterEditor: React.FC = () => {
 
       {/* Confirmation button */}
       {isEditMode && (
-        <div className="p-6 max-w-2xl mx-auto">
+        <div className="p-6 flex justify-center max-w-2xl mx-auto  ">
           <button
             onClick={
               isNewCluster
