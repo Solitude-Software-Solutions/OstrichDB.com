@@ -1694,24 +1694,27 @@ const ClusterEditor: React.FC = () => {
         </div>
       </div>
 
-      {/* Help Modal */}
-      {showHelpModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div
-            className="max-w-2xl w-full rounded-lg p-6 max-h-[80vh] overflow-y-auto"
-            style={{
-              backgroundColor: "var(--bg-primary)",
-              borderColor: "var(--border-color)",
-            }}
-            onMouseLeave={() => {setShowHelpModal(false)}}
-          >
-            <div className="flex items-center justify-between mb-6">
-              <h2
-                className="text-xl font-bold"
-                style={{ color: "var(--text-primary)" }}
-              >
-                Cluster Editor Help
-              </h2>
+     {/* Help Modal */}
+     {showHelpModal && (
+       <div 
+         className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+         onClick={() => setShowHelpModal(false)}
+       >
+         <div
+           className="max-w-2xl w-full rounded-lg p-6 max-h-[80vh] overflow-y-auto"
+           style={{
+             backgroundColor: "var(--bg-primary)",
+             borderColor: "var(--border-color)",
+           }}
+           onClick={(e) => e.stopPropagation()}
+         >
+           <div className="flex items-center justify-between mb-6">
+             <h2
+               className="text-xl font-bold"
+               style={{ color: "var(--text-primary)" }}
+             >
+               Cluster Editor Help
+             </h2>
               <button
                 onClick={() => setShowHelpModal(false)}
                 className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
@@ -1876,23 +1879,26 @@ const ClusterEditor: React.FC = () => {
         </div>
       )}
 
-      {/* Raw View Modal */}
-      {showRawModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div
-            className="max-w-4xl w-full rounded-lg p-6 max-h-[80vh] overflow-y-auto"
-            style={{
-              backgroundColor: "var(--bg-primary)",
-              borderColor: "var(--border-color)",
-            }}
-            onMouseLeave={() => {setShowRawModal(false)}}
-          >
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <h2
-                  className="text-xl font-bold"
-                  style={{ color: "var(--text-primary)" }}
-                >
+  {/* Raw View Modal */}
+  {showRawModal && (
+       <div 
+         className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+         onClick={() => setShowRawModal(false)}
+       >
+         <div
+           className="max-w-4xl w-full rounded-lg p-6 max-h-[80vh] overflow-y-auto"
+           style={{
+             backgroundColor: "var(--bg-primary)",
+             borderColor: "var(--border-color)",
+           }}
+           onClick={(e) => e.stopPropagation()}
+         >
+           <div className="flex items-center justify-between mb-6">
+             <div className="flex items-center gap-3">
+               <h2
+                 className="text-xl font-bold"
+                 style={{ color: "var(--text-primary)" }}
+               >
                   Raw Cluster Format
                 </h2>
                 <span className="text-sm px-2 py-1 bg-sb-amber text-black rounded font-mono">
