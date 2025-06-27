@@ -23,12 +23,17 @@ export const navLinks: NavLink[] = [
       {
         label: "Database",
         href: "#database",
-        description: "Postgres database with realtime capabilities",
+        description: "Custom built NoSQL/NoJSON database built in Odin",
       },
       {
-        label: "Auth",
-        href: "#auth",
-        description: "User management and authentication",
+        label: "Query Interfaces",
+        href: "#queries",
+        description: "Natural Language Queries, Manual Editor, Visual Tools",
+      },
+      {
+        label: "API & Integration",
+        href: "#api",
+        description: "RESTful API access and integration tools",
       },
     ],
   },
