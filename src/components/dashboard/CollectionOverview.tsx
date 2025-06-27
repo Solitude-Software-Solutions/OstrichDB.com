@@ -385,20 +385,22 @@ const CollectionOverview: React.FC = () => {
       </div>
 
       {/* Help Modal */}
-      {showHelpModal && (
+      {showHelpModal &&   (
+        
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div 
             className="max-w-3xl w-full max-h-[90vh] overflow-y-auto rounded-lg border"
             style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border-color)' }}
+            onMouseLeave={() => {setShowHelpModal(false)}}
           >
             <div className="sticky top-0 bg-inherit border-b px-6 py-4" style={{ borderColor: 'var(--border-color)' }}>
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
                   Collection Help & Tips
                 </h2>
-                <button
+                <button 
                   onClick={() => setShowHelpModal(false)}
-                  className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
+                  className="p-2 hover:bg-gray-700 rounded-lg transition-colors" 
                 >
                   <X size={20} style={{ color: 'var(--text-secondary)' }} />
                 </button>

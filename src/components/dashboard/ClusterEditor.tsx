@@ -1703,6 +1703,7 @@ const ClusterEditor: React.FC = () => {
               backgroundColor: "var(--bg-primary)",
               borderColor: "var(--border-color)",
             }}
+            onMouseLeave={() => {setShowHelpModal(false)}}
           >
             <div className="flex items-center justify-between mb-6">
               <h2
@@ -1884,6 +1885,7 @@ const ClusterEditor: React.FC = () => {
               backgroundColor: "var(--bg-primary)",
               borderColor: "var(--border-color)",
             }}
+            onMouseLeave={() => {setShowRawModal(false)}}
           >
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
