@@ -65,22 +65,39 @@ const Navbar: React.FC = () => {
 
     return (
       <div
-        className={`absolute top-full left-0 w-64 bg-sb-dark-accent dark:bg-sb-dark-accent light:bg-sb-cream rounded-md shadow-lg p-4 transform origin-top-left transition-all duration-200 ${
+        className={`absolute top-full left-0 w-64 rounded-md shadow-lg p-4 transform origin-top-left transition-all duration-200 border ${
           activeDropdown === link.label
             ? "animate-slide-down opacity-100"
             : "opacity-0 invisible"
         }`}
+        style={{
+          backgroundColor: "var(--bg-secondary)",
+          borderColor: "var(--border-color)"
+        }}
       >
         <div className="space-y-3">
           {link.dropdownItems?.map((item) => (
             <a
               key={item.label}
               href={item.href}
-              className="block px-3 py-2 text-sm hover:bg-gray-700 dark:hover:bg-gray-700 light:hover:bg-gray-200 rounded-md transition-colors"
+              className="block px-3 py-2 text-sm rounded-md transition-colors hover:opacity-80"
+              style={{
+                color: "var(--text-primary)",
+                backgroundColor: "transparent"
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "var(--bg-primary)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "transparent";
+              }}
             >
               <div className="font-medium">{item.label}</div>
               {item.description && (
-                <div className="text-gray-400 dark:text-gray-400 light:text-gray-600 text-xs mt-1">
+                <div 
+                  className="text-xs mt-1"
+                  style={{ color: "var(--text-secondary)" }}
+                >
                   {item.description}
                 </div>
               )}
@@ -95,7 +112,7 @@ const Navbar: React.FC = () => {
     <>
       {!isDashboardRoute && (
         <nav
-          className={`fixed w-full z-50 transition-all duration-300 text-sb-cream dark:text-sb-light ${
+          className={`fixed w-full z-50 transition-all duration-300 ${
             isScrolled ? 'opacity-0 pointer-events-none' : 'opacity-100'
           }`}
           style={{ color: 'var(--text-primary)' }}
@@ -125,7 +142,7 @@ const Navbar: React.FC = () => {
                         onMouseLeave={() => setActiveDropdown(null)}
                       >
                         <button 
-                          className="flex items-center space-x-1 transition-colors"
+                          className="flex items-center space-x-1 transition-colors hover:opacity-80"
                           style={{ color: 'var(--text-primary)' }}
                         >
                           <span>{link.label}</span>
@@ -144,7 +161,7 @@ const Navbar: React.FC = () => {
                     href="https://github.com/Archetype-Dynamics/OstrichDB.com"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sb-gray hover:text-white transition-colors"
+                    className="hover:text-sb-amber transition-colors"
                     style={{ color: 'var(--text-secondary)' }}
                     title="View source on GitHub"
                   >
@@ -174,12 +191,15 @@ const Navbar: React.FC = () => {
   
           {/* Mobile Menu */}
           <div
-            className={`md:hidden absolute w-full transition-all duration-300 ease-in-out ${
+            className={`md:hidden absolute w-full transition-all duration-300 ease-in-out border-b ${
               mobileMenuOpen
                 ? "max-h-[80vh] opacity-100"
                 : "max-h-0 opacity-0 invisible"
             } overflow-hidden`}
-            style={{ backgroundColor: 'var(--bg-secondary)' }}
+            style={{ 
+              backgroundColor: 'var(--bg-secondary)',
+              borderColor: 'var(--border-color)'
+            }}
           >
             <div className="container py-4 space-y-4">
               {/* Mobile Navigation - Only show on home page */}
@@ -191,7 +211,7 @@ const Navbar: React.FC = () => {
                         ? toggleDropdown(link.label)
                         : setMobileMenuOpen(false)
                     }
-                    className="flex items-center justify-between w-full text-left"
+                    className="flex items-center justify-between w-full text-left hover:opacity-80 transition-opacity"
                     style={{ color: 'var(--text-primary)' }}
                   >
                     <span>{link.label}</span>
@@ -215,10 +235,18 @@ const Navbar: React.FC = () => {
                         <a
                           key={item.label}
                           href={item.href}
-                          className="block py-2 text-sm hover:opacity-80"
+                          className="block py-2 text-sm hover:opacity-80 transition-opacity"
                           style={{ color: 'var(--text-secondary)' }}
                         >
-                          {item.label}
+                          <div className="font-medium">{item.label}</div>
+                          {item.description && (
+                            <div 
+                              className="text-xs mt-1"
+                              style={{ color: 'var(--text-secondary)' }}
+                            >
+                              {item.description}
+                            </div>
+                          )}
                         </a>
                       ))}
                     </div>
@@ -228,7 +256,10 @@ const Navbar: React.FC = () => {
               
               {/* Mobile Auth Section */}
               {!isLoading && !isAuthenticated && (
-                <div className="pt-4 border-t border-gray-600">
+                <div 
+                  className="pt-4 border-t"
+                  style={{ borderColor: 'var(--border-color)' }}
+                >
                   <AuthButtons />
                 </div>
               )}
