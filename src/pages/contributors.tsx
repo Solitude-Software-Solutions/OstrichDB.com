@@ -18,6 +18,8 @@ import { FaXTwitter } from "react-icons/fa6";
 import { IoLogoLinkedin } from "react-icons/io5";
 import abLogo from "../../public/images/ab-logo.png";
 import { FaGithub } from "react-icons/fa";
+import { X } from 'lucide-react';
+import { link } from 'fs';
 
 
 const ContributorTooltip = ({ contributor, position }) => {
@@ -197,7 +199,7 @@ const Contributors = () => {
     displayName: "Marshall Burns",
     githubUsername: "SchoolyB",
     founderRole: "CEO",
-    primaryContribution: "Fullstack Developer",
+    primaryContribution: "Lead Developer",
     xLink: "https://x.com/MarshallBCodes",
     linkedinUrl: "https://linkedin.com/in/marshallbcodes",
     personalNote: "Marshall is the creator of OstrichDB, leading the project from concept to execution. He has been instrumental in both frontend development as well as building the OstrichDB engine and backend infrastructure from scratch."
@@ -256,9 +258,11 @@ const Contributors = () => {
   const jodi = {
     name: "Jodi DeAngelis",
     displayName: "Jodi DeAngelis",
+    githubUsername: "jodideangelis",
     primaryContribution: "Designer",
     useMonogram: true,
-    monogramLetter: "J",
+    monogramLetter: "JD",
+    linkedinUrl: "https://linkedin.com/in/jodi-deangelis/",
     personalNote: "Jodi brought a fresh and creative perspective to the design process, making the OstrichDB UI more intuitive and visually appealing. Her contributions were invaluable in enhancing the overall user experience.",
   };
 
