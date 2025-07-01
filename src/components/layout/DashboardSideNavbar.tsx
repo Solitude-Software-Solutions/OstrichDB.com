@@ -179,7 +179,6 @@ export function DashboardSideNavbar() {
           icon: IconHome2, // Will use custom element
           label: `Project Status - ${currentProjectName}`,
           onClick: () => {
-            console.log('Show project status');
             setActive(1);
           },
           customElement: <ProjectStatusIndicator />
@@ -188,7 +187,6 @@ export function DashboardSideNavbar() {
           icon: IconUsers, 
           label: 'Collaborators',
           onClick: () => {
-            console.log('Navigate to collaborators');
             setActive(2);
           }
         },
@@ -226,7 +224,6 @@ export function DashboardSideNavbar() {
           icon: IconHome2,
           label: `Project Status - ${currentProjectName}`,
           onClick: () => {
-            console.log('Show project status');
             setActive(1);
           },
           customElement: <ProjectStatusIndicator />
@@ -235,7 +232,6 @@ export function DashboardSideNavbar() {
           icon: IconUsers, 
           label: 'Collaborators',
           onClick: () => {
-            console.log('Navigate to collaborators');
             setActive(2);
           }
         },

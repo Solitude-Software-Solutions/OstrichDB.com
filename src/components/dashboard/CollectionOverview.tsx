@@ -113,7 +113,29 @@ const CollectionOverview: React.FC = () => {
         throw new Error(`Failed to fetch collection data: ${collectionResponse.statusText}`);
       }
       
-      const collectionData = await collectionResponse.json();
+      // Get raw response text first
+      const collectionText = await collectionResponse.text();
+      
+      
+      // Smart parsing - try JSON first, fallback to string
+      let collectionData;
+      const contentType = collectionResponse.headers.get('content-type');
+      
+      if (contentType && contentType.includes('application/json')) {
+        try {
+          collectionData = JSON.parse(collectionText);
+        } catch (parseError) {
+          console.error('JSON parse failed despite content-type:', parseError);
+          collectionData = collectionText;
+        }
+      } else {
+        try {
+          collectionData = JSON.parse(collectionText);
+        } catch (parseError) {          
+          collectionData = collectionText;
+        }
+      }
+      
       setCollectionData(collectionData);
   
       // Fetch clusters data
@@ -127,9 +149,42 @@ const CollectionOverview: React.FC = () => {
       });
   
       if (clustersResponse.ok) {
-        const clustersData = await clustersResponse.json();      
-        if (clustersData.clusters && Array.isArray(clustersData.clusters)) {
-          const transformedClusters: Cluster[] = clustersData.clusters.map((cluster: any) => ({
+        // Get raw response text first
+        const clustersText = await clustersResponse.text();
+        
+        
+        if (clustersText.trim() === '') {
+          
+          setClusters([]);
+          return;
+        }
+        
+        // Smart parsing for clusters too
+        let clustersData;
+        const clustersContentType = clustersResponse.headers.get('content-type');
+        
+        
+        if (clustersContentType && clustersContentType.includes('application/json')) {
+          try {
+            clustersData = JSON.parse(clustersText);
+            
+          } catch (parseError) {
+            console.error('Clusters JSON parse failed:', parseError);
+            clustersData = clustersText;
+          }
+        } else {
+          try {
+            clustersData = JSON.parse(clustersText);
+            
+          } catch (parseError) {
+            
+            clustersData = clustersText;
+          }
+        }
+        
+        // Only process if it's an object with clusters array
+        if (typeof clustersData === 'object' && clustersData !== null && clustersData.clusters && Array.isArray(clustersData.clusters)) {
+          const transformedClusters = clustersData.clusters.map((cluster) => ({
             name: cluster.name,
             id: cluster.id.toString(),
             recordCount: cluster.record_count,
@@ -139,17 +194,22 @@ const CollectionOverview: React.FC = () => {
           }));
           
           setClusters(transformedClusters);
+        } else {
+          setClusters([]);
         }
       } else if (clustersResponse.status === 204) {
-        // No content - no clusters exist, which is fine
+        
         setClusters([]);
       } else {
-        console.warn('Failed to fetch clusters:', clustersResponse.statusText);
+        console.warn('Failed to fetch clusters:', clustersResponse.status, clustersResponse.statusText);
         setClusters([]);
       }
   
     } catch (err) {
-      console.error('Error fetching collection overview:', err);
+      console.error('Full error object:', err);
+      console.error('Error message:', err.message);
+      console.error('Error stack:', err.stack);
+      
       setError(err instanceof Error ? err.message : 'Failed to fetch collection data');
     } finally {
       setLoading(false);

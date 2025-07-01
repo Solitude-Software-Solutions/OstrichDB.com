@@ -218,7 +218,6 @@ const CollectionsComponent: React.FC = () => {
           });
           setCollections(collectionsArray);
         } else {
-          console.log('DEBUG: No collections array found in response');
           setCollections([]);
         }
       } catch (parseError) {
@@ -313,7 +312,6 @@ const CollectionsComponent: React.FC = () => {
   };
 
   const handleCollectionClick = (collectionName: string) => {
-    console.log('DEBUG: Clicking collection:', collectionName);
     navigate(`/dashboard/projects/${encodeURIComponent(projectName!)}/collections/${encodeURIComponent(collectionName)}`);
   };
 

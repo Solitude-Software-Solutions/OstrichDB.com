@@ -222,7 +222,7 @@ const ClusterEditor: React.FC = () => {
       const token = await getToken();
       setLoading(true);
       setError(null);
-
+  
       const clusters = await fetch(
         `http://localhost:8042/api/v1/projects/${encodeURIComponent(
           projectName!
@@ -236,20 +236,30 @@ const ClusterEditor: React.FC = () => {
           },
         }
       );
-
-      const clustersData = await clusters.json();
-      if (!clusters.ok) {
-        throw new Error(clustersData.message || "Failed to fetch clusters");
+  
+      const clustersText = await clusters.text();
+      let clustersData;
+      
+      try {
+        clustersData = JSON.parse(clustersText);
+      } catch {
+        clustersData = clustersText;
       }
-
-      // Ensure we always set an array
+  
+      if (!clusters.ok) {
+        throw new Error(
+          (typeof clustersData === 'object' && clustersData?.message) || 
+          clustersData || 
+          "Failed to fetch clusters"
+        );
+      }
+  
       setAvailableClusters(
         Array.isArray(clustersData?.clusters) ? clustersData.clusters : []
       );
     } catch (err) {
       console.error("Error fetching available clusters:", err);
       setError(err instanceof Error ? err.message : "Failed to fetch clusters");
-      // Set empty array on error
       setAvailableClusters([]);
     } finally {
       setLoading(false);
@@ -330,7 +340,6 @@ const ClusterEditor: React.FC = () => {
       } else if (recordsData && Array.isArray(recordsData.records)) {
         recordsArray = recordsData.records;
       } else if (recordsData && typeof recordsData === "object") {
-        console.log("Unexpected records format:", recordsData);
         recordsArray = [];
       }
 
