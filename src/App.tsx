@@ -33,7 +33,7 @@ import CollectionsComponent from "./components/dashboard/CollectionsComponent";
 import CollectionOverview from "./components/dashboard/CollectionOverview";
 import ClusterEditor from "./components/dashboard/ClusterEditor";
 import NotFound from './components/NotFound';
-import  DashboardTopNavbar  from "./components/layout/DashboardTopNavBar";
+import  DashboardTopNavbarb from "./components/layout/DashboardTopNavbar";
 import { ThemeProvider } from "./context/ThemeContext";
 import NLPInterface from "./components/dashboard/NLP";
 import Contributors from "./pages/contributors";
@@ -76,7 +76,7 @@ const theme = createTheme({
 // Dashboard Layout Component
 const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <div className="min-h-screen flex flex-col" style={{ backgroundColor: "var(--bg-primary)" }}>
-    <DashboardTopNavbar />
+    <DashboardTopNavbarb/>
     <div className="flex flex-1" style={{ paddingTop: '64px' }}> {/* Add padding for top navbar */}
       <DashboardSideNavbar />
       <main className="flex-1" style={{ marginLeft: '80px' }}> 
