@@ -16,7 +16,7 @@
 import React, { useState } from 'react';
 import { FaXTwitter } from "react-icons/fa6";
 import { IoLogoLinkedin } from "react-icons/io5";
-import abLogo from "../../public/images/ab-logo.png";
+import abLogo from "../images/ab-logo.png";
 import { FaGithub } from "react-icons/fa";
 import { X } from 'lucide-react';
 import { link } from 'fs';
