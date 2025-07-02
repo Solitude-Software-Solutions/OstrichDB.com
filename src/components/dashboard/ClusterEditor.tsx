@@ -44,12 +44,16 @@ interface Record {
   id: string;
   serverId?: string; //This would come from the server if available: 1,2,3,4,etc.
   name: string;
+  originalName?: string; // Track original name for renaming
   type: RecordDataType;
+  originalType?: RecordDataType; // Track original type
   value: string;
+  originalValue?: string; // Track original value
   isNew?: boolean;
   isModified?: boolean;
   hasError?: boolean;
   errorMessage?: string;
+  modifiedFields?: Set<string>; // Track specific fields that changed
 }
 
 interface ClusterInfo {
@@ -327,10 +331,17 @@ const ClusterEditor: React.FC = () => {
         }
       );
 
-      const recordsData = await response.json();
+      const recordsText = await response.text();
+      let recordsData;
+      
+      try {
+        recordsData = JSON.parse(recordsText);
+      } catch {
+        recordsData = recordsText;
+      }
 
       if (!response.ok) {
-        throw new Error(recordsData.message || "Failed to fetch records");
+        throw new Error((typeof recordsData === 'object' && recordsData?.message) || recordsData || "Failed to fetch records");
       }
 
       let recordsArray = [];
@@ -353,11 +364,15 @@ const ClusterEditor: React.FC = () => {
             .substr(2, 9)}`, // Always unique client ID
           serverId: record.id, // Keep server ID for reference if needed
           name: record.name || "",
+          originalName: record.name || "",
           type: record.type || "STRING",
+          originalType: record.type || "STRING",
           value: record.value || "",
+          originalValue: record.value || "",
           isNew: false,
           isModified: false,
           hasError: false,
+          modifiedFields: new Set<string>(),
         })
       );
       setRecords(transformedRecords);
@@ -493,23 +508,61 @@ const ClusterEditor: React.FC = () => {
       type: "STRING",
       value: "",
       isNew: true,
+      originalName: "",
+      originalType: "STRING",
+      originalValue: "",
+      modifiedFields: new Set<string>(),
     };
     setRecords((prev) => [...prev, newRecord]);
   };
 
   const updateRecord = (id: string, field: keyof Record, value: string) => {
+    // console.log("updateRecord called with:", { id, field, value });
     setRecords((prevRecords) =>
       prevRecords.map((record) => {
         if (record.id === id) {
+          // console.log("Updating record:", { recordName: record.name, field, value, recordBefore: record });
           const updatedRecord = {
             ...record,
             [field]: value,
             isModified: !record.isNew,
           };
+          // console.log("Updated record:", updatedRecord);
+
+          // Track which fields have been modified
+          if (!record.isNew) {
+            const modifiedFields = new Set(record.modifiedFields || []);
+            
+            // Check if the field actually changed from its original value
+            if (field === "name" && value !== record.originalName) {
+              modifiedFields.add("name");
+            } else if (field === "type" && value !== record.originalType) {
+              modifiedFields.add("type");
+            } else if (field === "value" && value !== record.originalValue) {
+              modifiedFields.add("value");
+            }
+            
+            // Remove from modified fields if it matches original
+            if (field === "name" && value === record.originalName) {
+              modifiedFields.delete("name");
+            } else if (field === "type" && value === record.originalType) {
+              modifiedFields.delete("type");
+            } else if (field === "value" && value === record.originalValue) {
+              modifiedFields.delete("value");
+            }
+            
+            updatedRecord.modifiedFields = modifiedFields;
+            updatedRecord.isModified = modifiedFields.size > 0;
+          }
 
           // If type changed, provide a default value
           if (field === "type") {
             updatedRecord.value = getDefaultValue(value as RecordDataType);
+            // Also track value modification if type changed
+            if (!record.isNew && updatedRecord.modifiedFields) {
+              updatedRecord.modifiedFields.add("value");
+              updatedRecord.originalValue = record.originalValue || record.value;
+            }
           }
 
           // Validate the record if we're updating critical fields
@@ -847,7 +900,7 @@ const ClusterEditor: React.FC = () => {
                       style={{
                         color: "var(--text-primary)",
                       }}
-                      onKeyPress={(e) =>
+                      onKeyDown={(e) =>
                         e.key === "Enter" && handleCreateNewCluster()
                       }
                     />
@@ -1046,14 +1099,158 @@ const ClusterEditor: React.FC = () => {
       );
     }
   }
+  // PUT method for renaming a record
+  const renameRecord = async (oldRecordName: string, newRecordName: string) => {
+    try {
+      const token = await getToken();
+      const url = `http://localhost:8042/api/v1/projects/${encodeURIComponent(
+        projectName!
+      )}/collections/${encodeURIComponent(
+        collectionName!
+      )}/clusters/${encodeURIComponent(
+        clusterName!
+      )}/records/${encodeURIComponent(oldRecordName)}?rename=${encodeURIComponent(newRecordName)}`;
+      
+      // console.log("PUT request URL for renaming record:", url);
+      // console.log("Old name:", oldRecordName, "New name:", newRecordName);
+      
+      const response = await fetch(url, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      });
+
+      const responseText = await response.text();
+      let responseData;
+      
+      try {
+        responseData = JSON.parse(responseText);
+      } catch {
+        responseData = responseText;
+      }
+
+      if (!response.ok) {
+        console.error("PUT request failed:", response.status, responseData);
+        throw new Error(`Failed to rename record: ${response.status} ${typeof responseData === 'object' && responseData?.message || responseData || 'Unknown error'}`);
+      }
+
+      return true;
+    } catch (err) {
+      console.error("Error renaming record:", err);
+      throw err;
+    }
+  };
+
+  // PUT method for updating record type
+  const updateRecordType = async (recordName: string, newType: string) => {
+    try {
+      const token = await getToken();
+      const url = `http://localhost:8042/api/v1/projects/${encodeURIComponent(
+        projectName!
+      )}/collections/${encodeURIComponent(
+        collectionName!
+      )}/clusters/${encodeURIComponent(
+        clusterName!
+      )}/records/${encodeURIComponent(recordName)}?type=${encodeURIComponent(newType)}`;
+      
+      // console.log("PUT request URL for updating record type:", url);
+      // console.log("Record name:", recordName, "New type:", newType);
+      
+      const response = await fetch(url, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      });
+
+      const responseText = await response.text();
+      let responseData;
+      
+      try {
+        responseData = JSON.parse(responseText);
+      } catch {
+        responseData = responseText;
+      }
+
+      if (!response.ok) {
+        console.error("PUT request failed:", response.status, responseData);
+        throw new Error(`Failed to update record type: ${response.status} ${typeof responseData === 'object' && responseData?.message || responseData || 'Unknown error'}`);
+      }
+
+      return true;
+    } catch (err) {
+      console.error("Error updating record type:", err);
+      throw err;
+    }
+  };
+
+  // PUT method for updating record value
+  const updateRecordValue = async (recordName: string, newValue: string) => {
+    try {
+      const token = await getToken();
+      
+      // Special handling for records with reserved names like "name"
+      const encodedRecordName = encodeURIComponent(recordName);
+      
+      const url = `http://localhost:8042/api/v1/projects/${encodeURIComponent(
+        projectName!
+      )}/collections/${encodeURIComponent(
+        collectionName!
+      )}/clusters/${encodeURIComponent(
+        clusterName!
+      )}/records/${encodedRecordName}?value=${encodeURIComponent(newValue)}`;
+      
+      // console.log("PUT request URL for updating record value:", url);
+      // console.log("Record name:", recordName, "Encoded record name:", encodedRecordName, "New value:", newValue);
+      // console.log("Is record name 'name'?", recordName === "name");
+      
+      const response = await fetch(url, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      });
+
+      const responseText = await response.text();
+      let responseData;
+      
+      try {
+        responseData = JSON.parse(responseText);
+      } catch {
+        responseData = responseText;
+      }
+
+      // console.log("Response status:", response.status);
+      // console.log("Response data:", responseData);
+
+      if (!response.ok) {
+        console.error("PUT request failed:", response.status, responseData);
+        throw new Error(`Failed to update record value: ${response.status} ${typeof responseData === 'object' && responseData?.message || responseData || 'Unknown error'}`);
+      }
+
+      return true;
+    } catch (err) {
+      console.error("Error updating record value:", err);
+      throw err;
+    }
+  };
+
   const handleConfirmClusterUpdate = async () => {
     try {
       setSaveStatus("saving");
       setError(null);
-      const token = await getToken();
+      
       for (const record of records) {
         if (record.isNew) {
-          //For new records, send a POST request
+          // For new records, send a POST request
+          const token = await getToken();
           await fetch(
             `http://localhost:8042/api/v1/projects/${encodeURIComponent(
               projectName!
@@ -1075,31 +1272,46 @@ const ClusterEditor: React.FC = () => {
               },
             }
           );
-        } else if (record.isModified) {
-          //For modified records, send a PUT request
-          await fetch(
-            `http://localhost:8042/api/v1/projects/${encodeURIComponent(
-              projectName!
-            )}/collections/${encodeURIComponent(
-              collectionName!
-            )}/clusters/${encodeURIComponent(
-              clusterName!
-            )}/records/${encodeURIComponent(
-              record.name
-            )}?type=${encodeURIComponent(
-              record.type
-            )}&value=${encodeURIComponent(record.value)}`,
-            {
-              method: "PUT",
-              headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-                Accept: "application/json",
-              },
-            }
-          );
+        } else if (record.isModified && record.modifiedFields) {
+          // For modified records, use specific PUT methods based on what changed
+          const modifiedFields = record.modifiedFields;
+          
+          // Handle renaming first (if name changed)
+          if (modifiedFields.has("name") && record.originalName) {
+            await renameRecord(record.originalName, record.name);
+            // Update the original name after successful rename
+            record.originalName = record.name;
+          }
+          
+          // Handle type change
+          if (modifiedFields.has("type")) {
+            await updateRecordType(record.name, record.type);
+            // Update the original type after successful update
+            record.originalType = record.type;
+          }
+          
+          // Handle value change
+          if (modifiedFields.has("value")) {
+            await updateRecordValue(record.name, record.value);
+            // Update the original value after successful update
+            record.originalValue = record.value;
+          }
         }
       }
+      
+      // Update records state to reflect successful save
+      setRecords((prev) =>
+        prev.map((record) => ({
+          ...record,
+          isNew: false,
+          isModified: false,
+          modifiedFields: new Set<string>(),
+          originalName: record.name,
+          originalType: record.type,
+          originalValue: record.value,
+        }))
+      );
+      
       setSaveStatus("saved");
       setSuccessMessage("Changes saved!");
       fetchRecordsInCluster();
